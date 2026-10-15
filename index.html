@@ -112,6 +112,9 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
 .opt.correct{background:#e2f9ee;border-color:var(--green);opacity:1}.opt.wrong{background:#ffe9ec;border-color:var(--red);opacity:1}
 .quizbar{display:flex;gap:5px;margin-top:6px}.quizbar i{flex:1;height:8px;border-radius:9px;background:#e9eaf2}
 .quizbar i.c{background:var(--green)}.quizbar i.w{background:var(--red)}.quizbar i.n{background:#b9a8ff}
+.handicon{width:62px;height:62px;margin:0 auto}.handicon svg{width:100%;height:100%;display:block}.handicon .emoji{font-size:34px;line-height:62px}
+.handbig{width:150px;height:150px;margin:0 auto}.handbig svg{width:100%;height:100%;display:block}.handbig.quiz{width:190px;height:190px}
+.tones{display:flex;gap:10px}.tone{width:38px;height:38px;border-radius:50%;border:3px solid white;box-shadow:0 0 0 2px var(--line)}.tone.on{box-shadow:0 0 0 3px var(--purple)}
 .alpha{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:7px;margin-top:14px}
 .alpha button{height:50px;border-radius:12px;border:2px solid var(--line);background:white;font-size:19px;font-weight:900;color:#b0b4c7}
 .alpha button.done{background:#e2f9ee;border-color:#9be7cd;color:#0e805d}
@@ -193,7 +196,7 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
     <section class="panel">
       <div class="panelhead"><h3 id="lessonHeading">📚 Your lesson</h3><span class="pill" id="lessonStatus">Not completed</span></div>
       <div class="target">
-        <div class="emoji" id="handEmoji">✊</div>
+        <div class="handbig" id="handPic"></div>
         <div class="letter" id="targetWord">A</div>
         <div id="modeBadge"></div>
         <p id="targetDesc"></p>
@@ -234,6 +237,7 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
   <section class="section panel"><h3>🏅 Achievements</h3><div class="achievements" id="achievements" style="margin-top:15px"></div></section>
   <section class="section panel"><h3>⚙️ Learning options</h3>
     <p style="color:var(--muted);font-size:13px;line-height:1.6">Units unlock as you go. Teachers and returning signers can open everything at once.</p>
+    <p style="color:var(--muted);font-size:13px;margin:16px 0 6px">Hand drawing skin tone</p><div class="tones" id="tonePicker"></div>
     <div class="actions"><button class="btn alt" id="unlockBtn">🔓 Unlock all units</button><button class="btn ghost" id="resetBtn">Reset progress</button></div>
   </section>
 </div>
@@ -253,7 +257,9 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
         u = straight up, d = curled down, b = curved, c = curled or curved,
         h = hooked, a = anything.
      2. Add a matching rule to CHECKS (inside the classifier block).
-     3. Put the letter in a unit's `letters` list.
+     3. Add a pose to HAND_POSES (inside the hand-model block). It draws the
+        letter's picture, and the tests check that CHECKS recognises it.
+     4. Put the letter in a unit's `letters` list.
    To add a word lesson: add it to the last unit's `words` (use letters that
    have camera checks; avoid J, Z and double letters).
    ===================================================================== */
@@ -268,32 +274,32 @@ const UNITS=[
 ];
 
 const LETTERS={
-  A:{emoji:'✊',fingers:'dddd',thumb:'straight up against the side of your index finger',desc:'Close all four fingers into a fist. Rest your thumb straight up along the side of your index finger.',memory:'Like knocking on a door with the thumb resting on the side.',cue:'Rest your thumb along the side of your index finger.'},
-  B:{emoji:'🖐️',fingers:'uuuu',thumb:'folded across your palm',desc:'Hold four fingers straight up and pressed together. Fold your thumb across your palm.',memory:'A flat wall of fingers, palm facing out.',cue:'Keep fingers together and fold your thumb across your palm.'},
-  L:{emoji:'☝️',fingers:'uddd',thumb:'stretched out to the side',desc:'Point your index finger up and stretch your thumb out to the side to make a right angle. Curl the other fingers.',memory:'It looks just like the printed letter.',cue:'Stretch your thumb out to the side.'},
-  I:{emoji:'🤙',fingers:'dddu',thumb:'resting across your curled fingers',desc:'Raise only your pinky. Curl the other fingers and rest your thumb across them.',memory:'The smallest finger stands up tall, like a thin stick.',cue:'Keep your thumb tucked across your fingers.'},
-  Y:{emoji:'🤙',fingers:'dddu',thumb:'stretched out to the side',desc:'Stretch out your thumb and pinky. Curl your index, middle and ring fingers.',memory:'Same shape as the "hang loose" gesture.',cue:'Stretch your thumb out to the side.'},
-  D:{emoji:'☝️',fingers:'uddd',thumb:'touching your middle fingertip',desc:'Point your index finger straight up. Curl the other fingers so their tips touch your thumb, making a round shape underneath.',memory:'The raised finger plus the circle below look like a lowercase d.',cue:'Touch your thumb to your middle fingertip.'},
-  U:{emoji:'🧲',fingers:'uudd',thumb:'holding your ring finger and pinky down',desc:'Raise your index and middle fingers pressed together. Hold your ring finger and pinky down with your thumb.',memory:'Two fingers glued together, like the two sides of the letter.',cue:'Press your two raised fingers together.'},
-  V:{emoji:'✌️',fingers:'uudd',thumb:'holding your ring finger and pinky down',desc:'Raise your index and middle fingers and spread them apart. Your thumb holds the other two fingers down.',memory:'The peace sign.',cue:'Spread your two raised fingers apart.'},
-  W:{emoji:'🌊',fingers:'uuud',thumb:'holding your pinky down',desc:'Raise and spread your index, middle and ring fingers. Your thumb holds your pinky down.',memory:'Three fingers up, like three points of the letter.',cue:'Raise three fingers and hold your pinky down.'},
-  F:{emoji:'👌',fingers:'cuuu',thumb:'touching your index fingertip',desc:'Touch your index fingertip to your thumb tip to make a circle. Keep the other three fingers up and spread.',memory:'Same handshape as the "OK" gesture.',cue:'Touch your index tip and thumb tip to make a circle.'},
-  C:{emoji:'🌙',fingers:'bbbb',thumb:'curved underneath, leaving a gap',desc:'Curve your fingers and thumb as if holding a cup, leaving a gap between your thumb and fingertips.',memory:'Seen from the side, your hand is the curve of the letter.',cue:'Curve your fingers and leave a gap above your thumb.'},
-  O:{emoji:'⭕',fingers:'cccc',thumb:'meeting your fingertips',desc:'Curve all your fingers so their tips meet your thumb tip, making a round opening.',memory:'Like holding a small ball.',cue:'Bring all your fingertips to meet your thumb.'},
-  E:{emoji:'🥚',fingers:'cccc',thumb:'tucked under your bent fingertips',desc:'Bend your fingers down so the fingertips rest on top of your thumb, which is tucked across your palm.',memory:'Fingertips perch on the thumb like claws.',cue:'Tuck your thumb under your bent fingertips.'},
-  S:{emoji:'🪨',fingers:'dddd',thumb:'wrapped across the front of your fingers',desc:'Make a tight fist and wrap your thumb across the front of your fingers.',memory:'Compare with A: thumb on the side. Here the thumb crosses the front.',cue:'Wrap your thumb across the front of your fingers.'},
-  X:{emoji:'🪝',fingers:'hddd',thumb:'resting on your curled fingers',desc:'Raise your index finger and bend it into a hook. Curl the other fingers with the thumb resting on them.',memory:'A beckoning "come here" finger.',cue:'Bend your index finger into a hook.'},
-  G:{emoji:'👉',fingers:'uddd',thumb:'pointing the same way as your index',desc:'Turn your hand sideways. Point your index finger and thumb in the same direction, parallel, with the other fingers curled.',memory:'Like showing "a tiny bit" between finger and thumb.',cue:'Turn your hand sideways so your finger points to the side.'},
-  H:{emoji:'➡️',fingers:'uudd',thumb:'holding your ring finger down',desc:'Turn your hand sideways and point your index and middle fingers together, out to the side. Curl the rest.',memory:'Two fingers lying flat, side by side.',cue:'Turn your hand sideways so both fingers point to the side.'},
-  K:{emoji:'🔑',fingers:'uudd',thumb:'touching your middle finger, between the two raised fingers',desc:'Raise your index and middle fingers in a V and touch your thumb tip to the middle finger between them.',memory:'A V with the thumb poking up in the middle.',cue:'Touch your thumb to your middle finger between the raised fingers.'},
-  R:{emoji:'🤞',fingers:'uudd',thumb:'holding your ring finger and pinky down',desc:'Cross your middle finger over your index finger, both pointing up. Curl the other fingers.',memory:'Fingers crossed for good luck!',cue:'Cross your middle finger over your index finger.'},
-  P:{emoji:'👇',fingers:'uadd',thumb:'touching your middle finger',desc:'Make the K handshape, then tip your hand so the fingers point down.',memory:'K, upside down.',cue:'Point your fingers down toward the floor.'},
-  Q:{emoji:'👇',fingers:'uddd',thumb:'pointing down beside your index',desc:'Make the G handshape, then point your index finger and thumb down.',memory:'G, pointing at the floor.',cue:'Point your index finger and thumb down toward the floor.'},
-  T:{emoji:'🍵',fingers:'cddd',thumb:'tucked between your index and middle fingers',desc:'Make a fist and tuck your thumb up between your index and middle fingers.',memory:'The thumb peeks out between the first two fingers.',cue:'Tuck your thumb between your index and middle fingers.',beta:true},
-  N:{emoji:'🧤',fingers:'ccdd',thumb:'tucked under two fingers, peeking between middle and ring',desc:'Make a fist with your thumb tucked under your index and middle fingers, peeking out between the middle and ring fingers.',memory:'N has two fingers over the thumb.',cue:'Tuck your thumb so it peeks out between your middle and ring fingers.',beta:true},
-  M:{emoji:'〽️',fingers:'cccd',thumb:'tucked under three fingers, peeking between ring and pinky',desc:'Make a fist with your thumb tucked under your index, middle and ring fingers, peeking out between the ring finger and pinky.',memory:'M has three fingers over the thumb.',cue:'Tuck your thumb so it peeks out between your ring finger and pinky.',beta:true},
-  J:{emoji:'🎣',fingers:'dddu',thumb:'resting across your curled fingers',desc:'Make the I handshape, then draw a hook in the air with your pinky: move down and curve, twisting your wrist.',memory:'Your pinky is a pen drawing a fishing hook.',cue:'Start with only your pinky raised.',motion:true},
-  Z:{emoji:'⚡',fingers:'uddd',thumb:'resting on your curled fingers',desc:'Point your index finger and trace a zig-zag in the air: across, diagonally down, then across again.',memory:'Like a lightning bolt.',cue:'Point only your index finger.',motion:true}
+  A:{fingers:'dddd',thumb:'straight up against the side of your index finger',desc:'Close all four fingers into a fist. Rest your thumb straight up along the side of your index finger.',memory:'Like knocking on a door with the thumb resting on the side.',cue:'Rest your thumb along the side of your index finger.'},
+  B:{fingers:'uuuu',thumb:'folded across your palm',desc:'Hold four fingers straight up and pressed together. Fold your thumb across your palm.',memory:'A flat wall of fingers, palm facing out.',cue:'Keep fingers together and fold your thumb across your palm.'},
+  L:{fingers:'uddd',thumb:'stretched out to the side',desc:'Point your index finger up and stretch your thumb out to the side to make a right angle. Curl the other fingers.',memory:'It looks just like the printed letter.',cue:'Stretch your thumb out to the side.'},
+  I:{fingers:'dddu',thumb:'resting across your curled fingers',desc:'Raise only your pinky. Curl the other fingers and rest your thumb across them.',memory:'The smallest finger stands up tall, like a thin stick.',cue:'Keep your thumb tucked across your fingers.'},
+  Y:{fingers:'dddu',thumb:'stretched out to the side',desc:'Stretch out your thumb and pinky. Curl your index, middle and ring fingers.',memory:'Same shape as the "hang loose" gesture.',cue:'Stretch your thumb out to the side.'},
+  D:{fingers:'uddd',thumb:'touching your middle fingertip',desc:'Point your index finger straight up. Curl the other fingers so their tips touch your thumb, making a round shape underneath.',memory:'The raised finger plus the circle below look like a lowercase d.',cue:'Touch your thumb to your middle fingertip.'},
+  U:{fingers:'uudd',thumb:'holding your ring finger and pinky down',desc:'Raise your index and middle fingers pressed together. Hold your ring finger and pinky down with your thumb.',memory:'Two fingers glued together, like the two sides of the letter.',cue:'Press your two raised fingers together.'},
+  V:{fingers:'uudd',thumb:'holding your ring finger and pinky down',desc:'Raise your index and middle fingers and spread them apart. Your thumb holds the other two fingers down.',memory:'The peace sign.',cue:'Spread your two raised fingers apart.'},
+  W:{fingers:'uuud',thumb:'holding your pinky down',desc:'Raise and spread your index, middle and ring fingers. Your thumb holds your pinky down.',memory:'Three fingers up, like three points of the letter.',cue:'Raise three fingers and hold your pinky down.'},
+  F:{fingers:'cuuu',thumb:'touching your index fingertip',desc:'Touch your index fingertip to your thumb tip to make a circle. Keep the other three fingers up and spread.',memory:'Same handshape as the "OK" gesture.',cue:'Touch your index tip and thumb tip to make a circle.'},
+  C:{fingers:'bbbb',thumb:'curved underneath, leaving a gap',desc:'Curve your fingers and thumb as if holding a cup, leaving a gap between your thumb and fingertips.',memory:'Seen from the side, your hand is the curve of the letter.',cue:'Curve your fingers and leave a gap above your thumb.'},
+  O:{fingers:'cccc',thumb:'meeting your fingertips',desc:'Curve all your fingers so their tips meet your thumb tip, making a round opening.',memory:'Like holding a small ball.',cue:'Bring all your fingertips to meet your thumb.'},
+  E:{fingers:'cccc',thumb:'tucked under your bent fingertips',desc:'Bend your fingers down so the fingertips rest on top of your thumb, which is tucked across your palm.',memory:'Fingertips perch on the thumb like claws.',cue:'Tuck your thumb under your bent fingertips.'},
+  S:{fingers:'dddd',thumb:'wrapped across the front of your fingers',desc:'Make a tight fist and wrap your thumb across the front of your fingers.',memory:'Compare with A: thumb on the side. Here the thumb crosses the front.',cue:'Wrap your thumb across the front of your fingers.'},
+  X:{fingers:'hddd',thumb:'resting on your curled fingers',desc:'Raise your index finger and bend it into a hook. Curl the other fingers with the thumb resting on them.',memory:'A beckoning "come here" finger.',cue:'Bend your index finger into a hook.'},
+  G:{fingers:'uddd',thumb:'pointing the same way as your index',desc:'Turn your hand sideways. Point your index finger and thumb in the same direction, parallel, with the other fingers curled.',memory:'Like showing "a tiny bit" between finger and thumb.',cue:'Turn your hand sideways so your finger points to the side.'},
+  H:{fingers:'uudd',thumb:'holding your ring finger down',desc:'Turn your hand sideways and point your index and middle fingers together, out to the side. Curl the rest.',memory:'Two fingers lying flat, side by side.',cue:'Turn your hand sideways so both fingers point to the side.'},
+  K:{fingers:'uudd',thumb:'touching your middle finger, between the two raised fingers',desc:'Raise your index and middle fingers in a V and touch your thumb tip to the middle finger between them.',memory:'A V with the thumb poking up in the middle.',cue:'Touch your thumb to your middle finger between the raised fingers.'},
+  R:{fingers:'uudd',thumb:'holding your ring finger and pinky down',desc:'Cross your middle finger over your index finger, both pointing up. Curl the other fingers.',memory:'Fingers crossed for good luck!',cue:'Cross your middle finger over your index finger.'},
+  P:{fingers:'uadd',thumb:'touching your middle finger',desc:'Make the K handshape, then tip your hand so the fingers point down.',memory:'K, upside down.',cue:'Point your fingers down toward the floor.'},
+  Q:{fingers:'uddd',thumb:'pointing down beside your index',desc:'Make the G handshape, then point your index finger and thumb down.',memory:'G, pointing at the floor.',cue:'Point your index finger and thumb down toward the floor.'},
+  T:{fingers:'cddd',thumb:'tucked between your index and middle fingers',desc:'Make a fist and tuck your thumb up between your index and middle fingers.',memory:'The thumb peeks out between the first two fingers.',cue:'Tuck your thumb between your index and middle fingers.',beta:true},
+  N:{fingers:'ccdd',thumb:'tucked under two fingers, peeking between middle and ring',desc:'Make a fist with your thumb tucked under your index and middle fingers, peeking out between the middle and ring fingers.',memory:'N has two fingers over the thumb.',cue:'Tuck your thumb so it peeks out between your middle and ring fingers.',beta:true},
+  M:{fingers:'cccd',thumb:'tucked under three fingers, peeking between ring and pinky',desc:'Make a fist with your thumb tucked under your index, middle and ring fingers, peeking out between the ring finger and pinky.',memory:'M has three fingers over the thumb.',cue:'Tuck your thumb so it peeks out between your ring finger and pinky.',beta:true},
+  J:{fingers:'dddu',thumb:'resting across your curled fingers',desc:'Make the I handshape, then draw a hook in the air with your pinky: move down and curve, twisting your wrist.',memory:'Your pinky is a pen drawing a fishing hook.',cue:'Start with only your pinky raised.',motion:true},
+  Z:{fingers:'uddd',thumb:'resting on your curled fingers',desc:'Point your index finger and trace a zig-zag in the air: across, diagonally down, then across again.',memory:'Like a lightning bolt.',cue:'Point only your index finger.',motion:true}
 };
 
 /* ===================== CLASSIFIER-START =====================
@@ -415,6 +421,77 @@ function evalMotion(letter,trail){
 }
 /* ===================== CLASSIFIER-END ===================== */
 
+/* ===================== HAND-MODEL-START =====================
+   A simple 3D hand. Each letter is a pose: bend angles (degrees) for the
+   three joints of each finger, plus a sideways spread, and where the thumb
+   tip sits. The same poses feed the drawings and the classifier tests, so a
+   drawing shows exactly the shape the camera check expects.
+   Local coordinates: x across the palm toward the pinky, y up the fingers,
+   z out of the palm (toward the viewer), in "palm lengths". */
+const D2R=Math.PI/180;
+const HAND_MCP={i:[-.28,.95,0],m:[0,1,0],r:[.24,.93,0],p:[.44,.82,0]};
+const HAND_LEN={i:[.45,.27,.22],m:[.5,.3,.23],r:[.46,.28,.22],p:[.36,.22,.2]};
+const CURL=[85,100,60],STRAIGHT=[0,0,0];
+const TH=(tip,bulge)=>({tip,bulge:bulge||[0,0,0]});
+const FIST={i:[CURL],m:[CURL],r:[CURL],p:[CURL]};
+const T_ACROSS=TH([.08,.78,.55],[-.2,.15,.05]);
+const T_HOLD=TH([.2,.85,.5],[0,0,.1]);
+const HAND_POSES={
+  A:{...FIST,thumb:TH([-.42,.85,.1],[-.05,0,0])},
+  B:{i:[STRAIGHT],m:[STRAIGHT,1],r:[STRAIGHT,2],p:[STRAIGHT,4],thumb:TH([.05,.55,.15],[-.05,.1,.1])},
+  L:{i:[STRAIGHT],m:[CURL],r:[CURL],p:[CURL],thumb:TH([-.75,.45,.05])},
+  I:{...FIST,p:[STRAIGHT],thumb:T_ACROSS},
+  Y:{...FIST,p:[STRAIGHT,8],thumb:TH([-.75,.5,.05])},
+  D:{...FIST,i:[STRAIGHT],thumb:TH([.02,.7,.38],[0,0,.1])},
+  U:{...FIST,i:[STRAIGHT],m:[STRAIGHT,-3],thumb:T_HOLD},
+  V:{...FIST,i:[STRAIGHT,-10],m:[STRAIGHT,10],thumb:T_HOLD},
+  W:{...FIST,i:[STRAIGHT,-8],m:[STRAIGHT],r:[STRAIGHT,8],thumb:TH([.38,.75,.42],[0,0,.1])},
+  F:{i:[[55,70,30]],m:[STRAIGHT],r:[STRAIGHT,5],p:[STRAIGHT,12],thumb:TH([-.3,.86,.66],[-.1,0,.1])},
+  C:{i:[[30,40,20]],m:[[30,40,20]],r:[[30,40,20]],p:[[30,40,20]],thumb:TH([-.3,.75,.6],[-.1,0,.1]),roll:-20},
+  O:{i:[[50,60,30]],m:[[50,60,30]],r:[[50,60,30]],p:[[50,60,30]],thumb:TH([-.22,.97,.72],[-.1,0,.1])},
+  E:{i:[[30,100,70]],m:[[30,100,70]],r:[[30,100,70]],p:[[30,100,70]],thumb:TH([.15,.7,.3],[-.15,.1,0])},
+  S:{...FIST,thumb:T_ACROSS},
+  X:{...FIST,i:[[10,95,65]],thumb:TH([-.05,.75,.5],[0,0,.1])},
+  G:{...FIST,i:[STRAIGHT],thumb:TH([-.5,.95,.1]),roll:90},
+  H:{...FIST,i:[STRAIGHT],m:[STRAIGHT,-3],thumb:TH([.2,.7,.4],[0,0,.1]),roll:90},
+  K:{...FIST,i:[STRAIGHT,-6],m:[[35,0,0],8],thumb:TH([-.1,1.3,.3],[0,0,.1])},
+  R:{...FIST,i:[STRAIGHT,8],m:[STRAIGHT,-12],thumb:T_HOLD},
+  P:{...FIST,i:[STRAIGHT,-6],m:[[35,0,0],8],thumb:TH([-.1,1.3,.3],[0,0,.1]),roll:180,pitch:-25},
+  Q:{...FIST,i:[STRAIGHT],thumb:TH([-.5,.95,.1]),roll:180,pitch:-25},
+  T:{...FIST,thumb:TH([-.16,.95,.3],[0,0,.1])},
+  N:{...FIST,thumb:TH([.1,.95,.3],[0,0,.1])},
+  M:{...FIST,thumb:TH([.32,.9,.3],[0,0,.1])},
+  J:{...FIST,p:[STRAIGHT],thumb:T_ACROSS},
+  Z:{...FIST,i:[STRAIGHT],thumb:TH([-.05,.75,.5],[0,0,.1])}
+};
+// 21 points in MediaPipe order, in local hand coordinates
+function handPoints(pose){
+  const P=[[0,0,0]],T1=[-.25,.2,.08],base={i:5,m:9,r:13,p:17};
+  for(const k of ['i','m','r','p']){
+    const [ang,ab=0]=pose[k];let pt=[...HAND_MCP[k]];P[base[k]]=[...pt];
+    const d0=[Math.sin(ab*D2R),Math.cos(ab*D2R),0];let phi=0;
+    ang.forEach((f,j)=>{phi+=f*D2R;const d=[Math.cos(phi)*d0[0],Math.cos(phi)*d0[1],Math.sin(phi)];pt=pt.map((v,n)=>v+d[n]*HAND_LEN[k][j]);P[base[k]+j+1]=[...pt]});
+  }
+  const tip=pose.thumb.tip,b=pose.thumb.bulge;
+  P[1]=T1;P[2]=T1.map((v,n)=>v+.35*(tip[n]-v)+b[n]);P[3]=T1.map((v,n)=>v+.7*(tip[n]-v)+.6*b[n]);P[4]=[...tip];
+  return P;
+}
+// Local → screen. The signer's right hand, palm toward the viewer (so the
+// thumb is on the viewer's right). yaw turns the hand to show depth; the
+// pose's own pitch/roll point it down or sideways. Returns [x, y, depth]
+// with y growing downward and depth growing toward the viewer.
+function handView(P,pose,{yaw=0,pitch=0,roll=0}={}){
+  const ya=yaw*D2R,pt=(pitch+(pose.pitch||0))*D2R,r=(roll+(pose.roll||0))*D2R;
+  return P.map(([X,Y,Z])=>{
+    const X1=X*Math.cos(ya)+Z*Math.sin(ya),Z1=-X*Math.sin(ya)+Z*Math.cos(ya);
+    let x=-X1,y=-Y,z=-Z1;
+    const y2=y*Math.cos(pt)-z*Math.sin(pt),z2=y*Math.sin(pt)+z*Math.cos(pt);
+    return[x*Math.cos(r)-y2*Math.sin(r),x*Math.sin(r)+y2*Math.cos(r),-z2];
+  });
+}
+/* ===================== HAND-MODEL-END ===================== */
+
+
 /* ---------- app state ---------- */
 const $=id=>document.getElementById(id),dateKey=()=>new Date().toLocaleDateString('en-CA');
 const LESSONS=UNITS.flatMap((u,ui)=>[...(u.letters||[]).map(l=>({type:'letter',id:l,unit:ui})),...(u.words||[]).map(w=>({type:'word',id:'w:'+w,word:w,unit:ui}))]);
@@ -424,7 +501,7 @@ const VALID=new Set(LESSONS.map(l=>l.id));
 const KEY='signsense-v2';
 let saved={};try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
 const arr=v=>Array.isArray(v)?v:[];
-let state={done:arr(saved.done).filter(x=>VALID.has(x)),self:arr(saved.self).filter(x=>VALID.has(x)),xp:Number(saved.xp)||0,streak:Number(saved.streak)||0,lastDay:saved.lastDay||'',dailyDay:saved.dailyDay||dateKey(),dailyCount:Number(saved.dailyCount)||0,quizToday:Number(saved.quizToday)||0,hearts:saved.hearts==null?5:Number(saved.hearts),heartsDay:saved.heartsDay||dateKey(),perfectQuiz:!!saved.perfectQuiz,unlockAll:!!saved.unlockAll};
+let state={done:arr(saved.done).filter(x=>VALID.has(x)),self:arr(saved.self).filter(x=>VALID.has(x)),xp:Number(saved.xp)||0,streak:Number(saved.streak)||0,lastDay:saved.lastDay||'',dailyDay:saved.dailyDay||dateKey(),dailyCount:Number(saved.dailyCount)||0,quizToday:Number(saved.quizToday)||0,hearts:saved.hearts==null?5:Number(saved.hearts),heartsDay:saved.heartsDay||dateKey(),perfectQuiz:!!saved.perfectQuiz,unlockAll:!!saved.unlockAll,tone:Number.isInteger(saved.tone)?saved.tone:1};
 try{const legacy=JSON.parse(localStorage.getItem('signsense-done')||'[]');if(Array.isArray(legacy)){state.done=[...new Set([...state.done,...legacy])].filter(x=>VALID.has(x));state.xp=Math.max(state.xp,Number(localStorage.getItem('signsense-xp'))||0)}}catch(e){}
 if(state.dailyDay!==dateKey()){state.dailyDay=dateKey();state.dailyCount=0;state.quizToday=0}
 if(state.heartsDay!==dateKey()){state.heartsDay=dateKey();state.hearts=5}
@@ -440,6 +517,48 @@ function tones(freqs,gap=.09){if(!$('soundToggle').checked)return;try{const ac=n
 const sound=()=>tones([523,659,784]),ping=()=>tones([880]),buzz=()=>tones([220,196],.12);
 function confetti(){const el=$('celebrate');el.innerHTML='';for(let i=0;i<35;i++){const n=document.createElement('i');n.className='confetti';n.style.left=Math.random()*100+'%';n.style.background=['#7556ed','#23bc8c','#f4b544','#ed6a7b'][i%4];n.style.setProperty('--x',(Math.random()*300-150)+'px');n.style.animationDelay=(Math.random()*.35)+'s';el.append(n)}setTimeout(()=>el.innerHTML='',2200)}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- hand drawings ---------- */
+// How each letter is shown: a slight turn (yaw) adds depth; C, O, E and X
+// read best from the side, like most ASL alphabet charts.
+const HAND_VIEWS={A:{yaw:20},S:{yaw:20},T:{yaw:20},N:{yaw:20},M:{yaw:20},E:{yaw:35},C:{yaw:-65},O:{yaw:-55},X:{yaw:55},
+  G:{yaw:-60},H:{yaw:-60},P:{yaw:30,pitch:35},Q:{yaw:30,pitch:35},K:{yaw:25},D:{yaw:20},F:{yaw:15},R:{yaw:25}};
+const SKIN_TONES=[['#f6d5b8','Light'],['#e2aa80','Medium light'],['#c68a5b','Medium'],['#8d5a35','Medium dark'],['#5c3a22','Dark']];
+const FINGER_W={i:.2,m:.21,r:.195,p:.17,t:.23};
+const PALM_OUTLINE=[[-.2,-.32,0],[-.25,-.02,0],[-.36,.32,.04],[-.39,.86,0],[-.3,1.01,0],[0,1.05,0],[.25,.99,0],[.47,.9,0],[.53,.55,0],[.42,.05,0],[.38,-.32,0]];
+function shade(hex,amt){const n=parseInt(hex.slice(1),16);const ch=[n>>16,(n>>8)&255,n&255].map(c=>Math.round(amt<0?c*(1+amt):c+(255-c)*amt));return'#'+ch.map(c=>c.toString(16).padStart(2,'0')).join('')}
+const svgCache=new Map();
+function handSVG(letter,cls='handsvg'){
+  const tone=SKIN_TONES[state.tone]?.[0]||SKIN_TONES[1][0],key=letter+tone+cls;
+  if(svgCache.has(key))return svgCache.get(key);
+  const pose=HAND_POSES[letter],view=HAND_VIEWS[letter]||{yaw:15};
+  const P=handPoints(pose),all=[...P,...PALM_OUTLINE];
+  const S=handView(all,pose,view),pts=S.slice(0,21),palm=S.slice(21);
+  const line=tone==='#5c3a22'||tone==='#8d5a35'?shade(tone,-.55):shade(tone,-.62),ow=.035;
+  const f=v=>v.toFixed(3);
+  // each finger is one smooth shape; fingers are painted far-to-near so
+  // curled fingers sit in front of the palm
+  const chains={t:[1,2,3,4],i:[5,6,7,8],m:[9,10,11,12],r:[13,14,15,16],p:[17,18,19,20]};
+  const items=Object.entries(chains).map(([k,c])=>{const q=c.map(i=>pts[i]);return{k,q,z:k==='t'?Math.max(q[2][2],q[3][2])-.02:(q[1][2]+q[2][2]+q[3][2])/3}});
+  items.sort((u,v)=>u.z-v.z);
+  // T, N and M: the thumb tip peeks out between the fingers
+  if('TNM'.includes(letter)){const th=items.find(o=>o.k==='t');items.push({k:'tip',q:th.q.slice(2),z:9})}
+  const zs=items.filter(o=>o.z<9).map(o=>o.z),zmin=Math.min(...zs),zr=(Math.max(...zs)-zmin)||1;
+  const body=items.map(o=>{const t=o.z>=9?1:(o.z-zmin)/zr,fill=shade(tone,-.14*(1-t)),w=FINGER_W[o.k==='tip'?'t':o.k];
+    const d='M'+o.q.map(p=>f(p[0])+' '+f(p[1])).join('L');
+    const crease=o.k==='tip'?'':o.q.slice(1,3).map((p,j)=>{const a=o.q[j],b=o.q[j+2],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,nx=-dy/L*w*.28,ny=dx/L*w*.28;return `<path d="M${f(p[0]-nx)} ${f(p[1]-ny)}L${f(p[0]+nx)} ${f(p[1]+ny)}" stroke="${line}" stroke-opacity=".35" stroke-width=".018"/>`}).join('');
+    return `<path d="${d}" stroke="${line}" stroke-width="${f(w+ow*2)}" stroke-linejoin="round"/><path d="${d}" stroke="${fill}" stroke-width="${f(w)}" stroke-linejoin="round"/>${crease}`}).join('');
+  const palmD='M'+palm.map(p=>f(p[0])+' '+f(p[1])).join('L')+'Z';
+  // motion arrows for J and Z
+  let extra='';
+  if(letter==='J'){const t=pts[20],x=t[0],y=t[1];extra=`<path d="M${f(x-.3)} ${f(y)}L${f(x-.3)} ${f(y+.75)}Q${f(x-.3)} ${f(y+1.1)} ${f(x+.02)} ${f(y+1)}" class="motionpath"/>`}
+  if(letter==='Z'){const t=pts[8],x=t[0]+.2,y=t[1]+.1;extra=`<path d="M${f(x+.7)} ${f(y-.6)}L${f(x)} ${f(y-.6)}L${f(x+.7)} ${f(y+.05)}L${f(x)} ${f(y+.05)}" class="motionpath"/>`}
+  const xs=S.map(p=>p[0]).concat(letter==='J'?[pts[20][0]-.4]:[],letter==='Z'?[pts[8][0]+.95]:[]),ys=S.map(p=>p[1]).concat(letter==='J'?[pts[20][1]+1.1]:[],letter==='Z'?[pts[8][1]-.55]:[]);
+  const pad=.18,x0=Math.min(...xs)-pad,y0=Math.min(...ys)-pad,w=Math.max(...xs)-x0+pad,h=Math.max(...ys)-y0+pad,side=Math.max(w,h);
+  const vb=`${f(x0-(side-w)/2)} ${f(y0-(side-h)/2)} ${f(side)} ${f(side)}`;
+  const svg=`<svg class="${cls}" viewBox="${vb}" role="img" aria-label="Hand showing the ASL letter ${letter}" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ah${letter}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#7455ed"/></marker></defs><path d="${palmD}" fill="${shade(tone,-.08)}" stroke="${line}" stroke-width="${ow*2}" stroke-linejoin="round"/><g fill="none" stroke-linecap="round">${body}</g>${extra.replace('class="motionpath"',`class="motionpath" fill="none" stroke="#7455ed" stroke-width=".08" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=".12 .09" marker-end="url(#ah${letter})"`)}</svg>`;
+  svgCache.set(key,svg);return svg;
+}
 
 /* ---------- units & unlocking ---------- */
 const unitIds=ui=>LESSONS.filter(l=>l.unit===ui).map(l=>l.id);
@@ -466,7 +585,7 @@ function chipsHTML(spec,f){
     return `<div class="chip ${cls}">${FNAME[k]}<b>${STATE_LABEL[want]}</b><div class="live">${live}</div></div>`}).join('');
 }
 function currentSpec(){const L=LESSONS[index];if(L.type==='letter')return LETTERS[L.id];const ch=L.word[Math.min(wordPos,L.word.length-1)];return LETTERS[ch]}
-function renderChips(f){const spec=currentSpec();$('chips').innerHTML=chipsHTML(spec,f);$('thumbNote').innerHTML=`👍 Thumb: <b>${esc(spec.thumb)}</b>`}
+function renderChips(f){const spec=currentSpec();$('chips').innerHTML=chipsHTML(spec,f);$('thumbNote').innerHTML=`Thumb: <b>${esc(spec.thumb)}</b>`}
 
 function render(){
   const d=doneSet(),selfS=new Set(state.self),L=LESSONS[index];
@@ -485,7 +604,7 @@ function render(){
     const tiles=LESSONS.map((l,i)=>({l,i})).filter(o=>o.l.unit===ui).map(({l,i})=>{const sp=l.type==='letter'?LETTERS[l.id]:null;const isD=d.has(l.id);
       const status=isD?(selfS.has(l.id)?'<div class="complete">✓ Self-checked</div>':'<div class="complete">✓ Completed</div>'):`<div class="todo">${open?'Practice →':'🔒 Locked'}</div>`;
       const corner=sp?.beta?'🧪':sp?.motion?'🌀':'';
-      return `<button class="tile ${index===i&&tab==='practice'?'active':''} ${isD?'isdone':''}" data-lesson="${i}" aria-label="${l.type==='word'?'Fingerspell '+l.word:'Practice letter '+l.id}"><span class="corner">${corner}</span><div class="emoji">${sp?sp.emoji:'💬'}</div><div class="letter ${l.type==='word'?'word':''}">${label(l)}</div><div class="small">Lesson ${i+1}</div>${status}</button>`}).join('');
+      return `<button class="tile ${index===i&&tab==='practice'?'active':''} ${isD?'isdone':''}" data-lesson="${i}" aria-label="${l.type==='word'?'Fingerspell '+l.word:'Practice letter '+l.id}"><span class="corner">${corner}</span><div class="handicon">${sp?handSVG(l.id):'<span class="emoji">💬</span>'}</div><div class="letter ${l.type==='word'?'word':''}">${label(l)}</div><div class="small">Lesson ${i+1}</div>${status}</button>`}).join('');
     return `<section class="unit ${open?'':'locked'}"><div class="unithead"><div class="unitbadge">${u.emoji}</div><div><div class="eyebrow">UNIT ${ui+1}</div><h3>${u.title}</h3><p>${u.sub}</p></div><div class="unitprog">${cnt} / ${tot} done<div class="track"><div class="fill ${cnt===tot?'done':''}" style="width:${cnt/tot*100}%"></div></div></div></div><div class="lesson-grid">${tiles}</div>${open?'':`<div class="lockmsg">🔒 Complete ${unitNeed(ui-1)} lessons in Unit ${ui} to unlock — or use “Unlock all units” on the Progress page.</div>`}</section>`}).join('');
   document.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>{if(choose(+b.dataset.lesson))setTab('practice')});
 
@@ -497,7 +616,7 @@ function render(){
   const isWord=L.type==='word',spec=currentSpec();
   $('lessonHeading').textContent=isWord?'💬 Fingerspell this word':'📚 Your lesson';
   $('targetWord').textContent=label(L);$('targetWord').classList.toggle('word',isWord);
-  $('handEmoji').textContent=isWord?'💬':spec.emoji;
+  $('handPic').innerHTML=handSVG(isWord?L.word[Math.min(wordPos,L.word.length-1)]:L.id,'handsvg big');
   $('targetDesc').textContent=isWord?`Sign each letter in order and hold it briefly. Now signing: ${L.word[Math.min(wordPos,L.word.length-1)]} — ${spec.desc}`:spec.desc;
   $('memoryTip').textContent='💭 '+(isWord?'Keep your hand in the same spot and let each letter flow into the next.':spec.memory);
   $('modeBadge').innerHTML=!isWord&&spec.beta?'<span class="badge">🧪 Tricky for webcams — use “I signed it” if it won’t register</span>':!isWord&&spec.motion?'<span class="badge motion">🌀 Movement letter — make the shape, then draw it in the air</span>':'';
@@ -515,6 +634,8 @@ function render(){
   const motionDone=d.has('J')&&d.has('Z');
   const awards=[['🌱','First step',state.done.length>=1],['🔥','On a roll',state.streak>=2],['⭐','Triple practice',state.dailyCount>=3],['🖐️','Unit 1 complete',unit1>=5],['🔤','Half the alphabet',lettersDone>=13],['🏆','Alphabet master',lettersDone>=26],['🌀','Motion master',motionDone],['💬','First word',wordsDone>=1],['📚','Word collector',wordsDone>=WORDS.length],['🧠','Perfect quiz',state.perfectQuiz],['⚡','100 XP',state.xp>=100],['💜','500 XP',state.xp>=500]];
   $('achievements').innerHTML=awards.map(([e,n,u])=>`<div class="award ${u?'':'locked'}"><div class="emoji">${e}</div><b>${n}</b><span>${u?'Unlocked!':'Locked'}</span></div>`).join('');
+  $('tonePicker').innerHTML=SKIN_TONES.map(([c,n],i)=>`<button class="tone ${state.tone===i?'on':''}" data-tone="${i}" style="background:${c}" aria-label="${n} skin tone" aria-pressed="${state.tone===i}"></button>`).join('');
+  document.querySelectorAll('[data-tone]').forEach(b=>b.onclick=()=>{state.tone=+b.dataset.tone;persist();render()});
   $('unlockBtn').disabled=state.unlockAll;$('unlockBtn').textContent=state.unlockAll?'🔓 All units unlocked':'🔓 Unlock all units';
 }
 
@@ -635,7 +756,7 @@ function renderQuestion(){
   const bar=`<div class="quizbar">${quiz.qs.map((_,i)=>`<i class="${quiz.results[i]===true?'c':quiz.results[i]===false?'w':i===quiz.i?'n':''}"></i>`).join('')}</div>`;
   let prompt,opts;
   if(q.type==='which'){
-    prompt=`<div class="quizq">Which letter is this?</div><div class="quizprompt"><div class="chips" style="margin-top:0">${chipsHTML(sp,null)}</div><div class="thumbnote">👍 Thumb: <b>${esc(sp.thumb)}</b></div><p>${esc(sp.desc.replace(/\b(K|G|I) handshape\b/,'a related handshape'))}</p></div>`;
+    prompt=`<div class="quizq">Which letter is this handshape?</div><div class="quizprompt"><div class="handbig quiz">${handSVG(q.ans,'handsvg big')}</div>${sp.motion?'<p>The dotted arrow shows the movement.</p>':''}</div>`;
     opts=q.opts.map(o=>`<button class="opt big" data-opt="${o}">${o}</button>`).join('');
   }else{
     prompt=`<div class="quizq">How do you sign this letter?</div><div class="quizprompt"><div class="letter">${q.ans}</div></div>`;
@@ -673,7 +794,7 @@ $('retryBtn').onclick=()=>{completedLatch=false;wordPos=0;trail=[];resetHold(tru
 $('selfBtn').onclick=()=>{completedLatch=false;wordPos=LESSONS[index].type==='word'?LESSONS[index].word.length:0;success(true)};
 $('continueBtn').onclick=()=>{if(choose(nextLessonIndex()))setTab('practice')};
 $('unlockBtn').onclick=()=>{state.unlockAll=true;persist();render();toast('🔓 All units unlocked')};
-$('resetBtn').onclick=()=>{if(!confirm('Reset all SignSense progress in this browser?'))return;state={done:[],self:[],xp:0,streak:0,lastDay:'',dailyDay:dateKey(),dailyCount:0,quizToday:0,hearts:5,heartsDay:dateKey(),perfectQuiz:false,unlockAll:false};try{localStorage.removeItem('signsense-done');localStorage.removeItem('signsense-xp')}catch(e){}sessionDone.clear();persist();choose(0);toast('Progress reset')};
+$('resetBtn').onclick=()=>{if(!confirm('Reset all SignSense progress in this browser?'))return;state={done:[],self:[],xp:0,streak:0,lastDay:'',dailyDay:dateKey(),dailyCount:0,quizToday:0,hearts:5,heartsDay:dateKey(),perfectQuiz:false,unlockAll:false,tone:state.tone};try{localStorage.removeItem('signsense-done');localStorage.removeItem('signsense-xp')}catch(e){}sessionDone.clear();persist();choose(0);toast('Progress reset')};
 document.addEventListener('keydown',e=>{if(tab!=='practice'||e.target.matches('input,textarea'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
 window.addEventListener('pagehide',()=>stream?.getTracks().forEach(t=>t.stop()));
 persist();choose(nextLessonIndex());
