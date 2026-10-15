@@ -11,6 +11,10 @@ C.setAspect(1);
 
 const hm=html.split('/* ===================== HAND-MODEL-START')[1].split('/* ===================== HAND-MODEL-END')[0];
 const H=new Function(hm.slice(hm.indexOf('*/')+2)+';return{HAND_POSES,handPoints};')();
+// Seeded random numbers, so every run of the tests is identical.
+let seed=Number(process.env.SEED)||12345;
+const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+const SAMPLES=Number(process.env.SAMPLES)||4;
 const D=Math.PI/180;
 // Place a hand pose in front of a virtual camera: palm toward the camera,
 // optionally a left hand (mirrored), tilted (roll/pitch) and with jitter.
@@ -21,7 +25,7 @@ function hand(pose,{left=false,roll=0,pitch=0,noise=0}={}){
     let x=left?X:-X,y=-Y,z=-Z;
     let y2=y*Math.cos(pt)-z*Math.sin(pt),z2=y*Math.sin(pt)+z*Math.cos(pt);y=y2;z=z2;
     let x2=x*Math.cos(r)-y*Math.sin(r);y2=x*Math.sin(r)+y*Math.cos(r);x=x2;y=y2;
-    const j=()=>(Math.random()*2-1)*noise;
+    const j=()=>(rand()*2-1)*noise;
     return{x:.5+.2*x+j(),y:.55+.2*y+j(),z:.2*z+j()};
   });
 }
@@ -31,7 +35,7 @@ const POSES=Object.fromEntries(Object.entries(H.HAND_POSES).filter(([l])=>!'JZ'.
 let fails=0,total=0;const conf={};
 for(const [L,pose] of Object.entries(POSES)){
   let ok=0,n=0;
-  for(const left of [false,true])for(const roll of [-15,0,15])for(const pitch of [-15,0,15])for(let rep=0;rep<4;rep++){
+  for(const left of [false,true])for(const roll of [-15,0,15])for(const pitch of [-15,0,15])for(let rep=0;rep<SAMPLES;rep++){
     const f=C.analyze(hand(pose,{left,roll,pitch,noise:rep?0.004:0}));
     const hit=C.CHECKS[L](f),det=C.detect(f);n++;total++;
     if(hit&&det===L)ok++;else{fails++;const k=`${L}->${hit?'(hit,det '+det+')':det}`;conf[k]=(conf[k]||0)+1}
@@ -45,7 +49,7 @@ console.log(`TOTAL ${total-fails}/${total}`);
 function trace(pts){return pts.map((q,i)=>({t:i*30,x:q[0],y:q[1]}))}
 const z=[];for(let i=0;i<=10;i++)z.push([i*.08,0]);for(let i=1;i<=10;i++)z.push([.8-i*.08,i*.06]);for(let i=1;i<=10;i++)z.push([i*.08,.6]);
 const j=[];for(let i=0;i<=12;i++)j.push([0,i*.06]);for(let i=1;i<=10;i++){const a=i/10*Math.PI;j.push([-.25+.25*Math.cos(a),.72+.25*Math.sin(a)])}
-const still=Array.from({length:30},()=>[Math.random()*.02,Math.random()*.02]);
+const still=Array.from({length:30},()=>[rand()*.02,rand()*.02]);
 const horiz=[];for(let i=0;i<=20;i++)horiz.push([i*.05,0]);
 console.log('Z zigzag',C.evalMotion('Z',trace(z)).done,'| Z still',C.evalMotion('Z',trace(still)).done,'| Z one swipe',C.evalMotion('Z',trace(horiz)).done);
 console.log('J hook',C.evalMotion('J',trace(j)).done,'| J still',C.evalMotion('J',trace(still)).done,'| J swipe',C.evalMotion('J',trace(horiz)).done);
