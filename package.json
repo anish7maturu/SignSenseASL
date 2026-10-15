@@ -1,0 +1,11 @@
+{
+  "name": "signsenseasl",
+  "version": "1.0.0",
+  "description": "Learn the ASL fingerspelling alphabet with live webcam feedback",
+  "private": true,
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node tests/classifier.test.js"
+  },
+  "license": "MIT"
+}
