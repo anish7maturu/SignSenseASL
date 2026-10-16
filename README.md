@@ -8,6 +8,10 @@ A Duolingo-style web app for learning the American Sign Language (ASL) fingerspe
 
 The app has two modes, switched at the top of the sidebar: **Learn** and **Translate**.
 
+### Profiles
+
+Sign up with a username and password (no email), or continue as a guest. Each profile keeps its own XP, streak and progress, so several people can share one computer. Profiles are saved **in this browser only**: they don't follow you to another computer, and clearing the browser's data removes them. Passwords are never stored, only a salted PBKDF2 hash of each one.
+
 ### Learn mode
 
 - **Learn path:** 7 units covering all 26 letters plus fingerspelled words (HI, OK, YES, BYE, COW, FLY, LOVE, WOLF). Units unlock as you progress.
@@ -32,7 +36,7 @@ Both translator modes work with **fingerspelling** (the 26 letters), not whole-w
 | Movement check | For J and Z, the fingertip's path over the last ~2 seconds is checked for the right shape |
 | Sign → Text | Each frame's letter guess goes to a small "typer": a letter is added once it is held still for 0.8 s, a held letter is typed only once, a one-frame misread is ignored, and a hand that is out of view for 1.5 s adds a space |
 | Text → Sign | The same 3D hand poses that draw the lesson pictures are blended joint by joint (finger bends, spread, thumb position, hand tilt) to animate from one letter to the next |
-| Storage | `localStorage`, so no account is needed and no video leaves the computer |
+| Storage | `localStorage`: progress is saved per profile (guests use the original slot), and no video leaves the computer |
 
 Everything is in one file, `index.html` (HTML, CSS and JavaScript, no build step).
 
@@ -53,8 +57,10 @@ In GitHub Codespaces, run the same command and open the forwarded port 8000.
 
 `tests/translator.test.js` checks the translator: when letters are typed (held long enough, typed once, repeated after relaxing, misreads ignored, moving hands ignored, spaces after a pause, J from a movement), how text is split into letters to sign, and that every pair of letters blends into a valid hand.
 
+`tests/accounts.test.js` checks sign-up rules, that logging in needs the right password, that capitals in a username don't matter, and that passwords themselves are never saved.
+
 ```bash
-npm test   # runs both test files
+npm test   # runs all three test files
 ```
 
 ## Limitations
@@ -65,7 +71,7 @@ SignSenseASL is an educational prototype, not a certified ASL assessment. Finger
 
 - Hand tracking: MediaPipe Hands (Google), Apache 2.0 license
 - Font: Nunito (Google Fonts)
-- AI assistance: the Translate mode (Sign → Text, Text → Sign and their tests) was written with help from Claude, an AI assistant by Anthropic.
+- AI assistance: the Translate mode (Sign → Text, Text → Sign), the profiles (log in / sign up), the visual cleanup, and their tests were written with help from Claude, an AI assistant by Anthropic.
 - _Add team members and any other tools used during development here._
 
 ## License

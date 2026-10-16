@@ -130,6 +130,14 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
 .modeswitch{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#f0f2fa;padding:4px;border-radius:14px;margin:0 4px 18px}
 .modeswitch button{border:0;background:transparent;border-radius:11px;padding:9px 6px;font-weight:900;color:#777d9b;font-size:13px;white-space:nowrap}
 .modeswitch button.active{background:white;color:var(--purple);box-shadow:0 2px 0 var(--line)}
+/* accounts */
+.auth{position:fixed;inset:0;background:var(--bg);z-index:20;display:grid;place-items:center;padding:16px;overflow:auto}
+.authcard{width:min(420px,100%);background:white;border:2px solid var(--line);border-radius:22px;padding:28px}
+.autherr{color:#b4233c;font-size:13px;min-height:18px;margin:10px 0}
+.authnote{font-size:12px;color:var(--muted);line-height:1.55;margin:16px 0 0}
+.userbox{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px 4px 0;padding:10px 12px;border:2px solid var(--line);border-radius:14px;font-size:13px;min-width:0}
+.userbox span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.userbox button{border:0;background:none;color:var(--purple);font-weight:900;font-size:12px;padding:4px 2px}
 /* translator */
 .outbox{min-height:110px;background:#f7f3ff;border:2px solid #eee6ff;border-radius:18px;padding:16px 18px;font-size:30px;font-weight:900;letter-spacing:3px;line-height:1.35;white-space:pre-wrap;word-break:break-word}
 .outbox .empty{color:#9ea3b8;font-size:16px;letter-spacing:0;font-weight:700}
@@ -150,7 +158,7 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
 .field{width:100%;border:2px solid var(--line);border-radius:13px;padding:12px 14px;font:800 17px Nunito,system-ui,sans-serif;color:var(--dark);background:white}
 .field:focus{outline:3px solid #a79aff;outline-offset:1px;border-color:#cbbcff}
 .examples{display:flex;gap:8px;flex-wrap:wrap}.examples .btn{padding:9px 13px;font-size:13px}
-@media(max-width:1050px){.shell{grid-template-columns:1fr}.sidebar{height:auto;position:static;flex-direction:row;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 18px}.brand{padding:0}.modeswitch{margin:0}.nav{display:flex}.sidebarbottom{display:none}.content{padding:20px}}
+@media(max-width:1050px){.shell{grid-template-columns:1fr}.sidebar{height:auto;position:static;flex-direction:row;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 18px}.brand{padding:0}.modeswitch{margin:0}.userbox{margin:0}.nav{display:flex}.sidebarbottom{display:none}.content{padding:20px}}
 @media(max-width:750px){.header{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.rowcards{grid-template-columns:1fr}.nav button{font-size:12px;padding:10px}.nav button span{margin-right:3px}.camera{height:310px}.stage{height:300px}.achievements{grid-template-columns:repeat(3,1fr)}.unitprog{min-width:90px}}
 @media(max-width:480px){.sidebar{flex-wrap:wrap;gap:10px}.brand{font-size:21px}.lesson-grid{grid-template-columns:repeat(2,1fr)}.content{padding:15px}.hero{padding:18px}.header h1{font-size:25px}.achievements{grid-template-columns:repeat(2,1fr)}.opts{grid-template-columns:1fr}.unithead{flex-wrap:wrap}.unitprog{margin-left:0;text-align:left;width:100%}}
 </style>
@@ -173,6 +181,7 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
     <button data-tab="signtext"><span>✋</span>Sign → Text</button>
     <button data-tab="textsign"><span>⌨️</span>Text → Sign</button>
   </nav>
+  <div class="userbox"><span id="userName">Guest</span><button id="authBtn">Log in</button></div>
   <div class="sidebarbottom"><b>A note on ASL</b><br>Handshape, movement, location and facial expression all matter in ASL. Camera checks here are simplified practice, not a fluency assessment.</div>
 </aside>
 <main class="content">
@@ -311,6 +320,31 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
 
 <p class="footer">SignSense is an educational prototype, not a certified ASL assessment. It uses MediaPipe Hands (21 hand landmarks) and simplified heuristics for fingerspelling handshapes; J and Z are checked by tracing their movement. ASL includes movement, grammar, facial expression, and context. The translator works with fingerspelling (letters), not whole ASL signs or grammar, and does not verify all sign details. Letters marked 🧪 are harder for a webcam to see. Internet is needed to load MediaPipe; webcam access works on localhost or HTTPS. Progress is saved locally in this browser.</p>
 </main>
+</div>
+<div id="authView" class="auth hidden">
+  <div class="authcard" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="brand" style="padding:0 0 18px"><div class="brandicon">🤟</div>SignSense</div>
+    <h2 id="authTitle" style="margin:0 0 4px;font-size:24px">Welcome back</h2>
+    <p id="authSub" style="margin:0 0 16px;color:var(--muted)">Log in to pick up where you left off.</p>
+    <div class="modeswitch" style="margin:0 0 16px" role="group" aria-label="Log in or sign up">
+      <button type="button" data-auth="login" class="active" aria-pressed="true">Log in</button>
+      <button type="button" data-auth="signup" aria-pressed="false">Sign up</button>
+    </div>
+    <form id="authForm" novalidate>
+      <label for="authUser" class="fieldlabel">Username</label>
+      <input id="authUser" class="field" autocomplete="username" maxlength="20" required>
+      <label for="authPass" class="fieldlabel" style="margin-top:12px">Password</label>
+      <input id="authPass" class="field" type="password" autocomplete="current-password" required>
+      <div id="authConfirmRow" class="hidden">
+        <label for="authPass2" class="fieldlabel" style="margin-top:12px">Type the password again</label>
+        <input id="authPass2" class="field" type="password" autocomplete="new-password">
+      </div>
+      <p id="authError" class="autherr" role="alert"></p>
+      <button class="btn full" id="authSubmit" type="submit" style="width:100%">Log in</button>
+    </form>
+    <button class="btn ghost" id="guestBtn" type="button" style="width:100%;margin-top:10px">Continue as guest</button>
+    <p class="authnote">Accounts and progress are saved in this browser only, so they won't follow you to another computer. No email needed. Don't reuse a password from another site.</p>
+  </div>
 </div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="celebrate" class="celebrate" aria-hidden="true"></div>
@@ -657,6 +691,48 @@ function motionOffset(ch,u){
 }
 /* ===================== TRANSLATOR-END ===================== */
 
+/* ===================== ACCOUNTS-START =====================
+   Profiles saved in this browser (tested in tests/accounts.test.js).
+   Passwords are never stored: only a salted PBKDF2 hash of each one.
+   `store` is localStorage in the app, or a stand-in in the tests. */
+function checkUsername(n){
+  n=String(n||'').trim();
+  if(n.length<3)return'Usernames need at least 3 characters.';
+  if(n.length>20)return'Usernames can be at most 20 characters.';
+  if(!/^[A-Za-z0-9_]+$/.test(n))return'Use only letters, numbers and _ in your username.';
+  return'';
+}
+function checkPassword(p){return String(p||'').length<6?'Passwords need at least 6 characters.':''}
+const toHex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+async function hashPassword(pw,saltHex){
+  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
+  const salt=Uint8Array.from(saltHex.match(/../g),h=>parseInt(h,16));
+  return toHex(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'},key,256));
+}
+const userId=n=>String(n||'').trim().toLowerCase(); // "Anish" and "anish" are the same person
+function createAccounts(store,key='signsense-users'){
+  const load=()=>{try{const v=JSON.parse(store.getItem(key)||'{}');return v&&typeof v==='object'?v:{}}catch(e){return{}}};
+  return{
+    async signUp(name,pw){
+      const err=checkUsername(name)||checkPassword(pw);if(err)return{error:err};
+      const users=load(),id=userId(name);
+      if(users[id])return{error:'That username is already used on this device. Pick another, or log in.'};
+      const salt=toHex(crypto.getRandomValues(new Uint8Array(16)));
+      users[id]={name:String(name).trim(),salt,hash:await hashPassword(String(pw),salt),created:Date.now()};
+      store.setItem(key,JSON.stringify(users));
+      return{user:users[id].name};
+    },
+    async logIn(name,pw){
+      const u=load()[userId(name)];
+      if(!u||await hashPassword(String(pw||''),u.salt)!==u.hash)return{error:'Wrong username or password.'};
+      return{user:u.name};
+    },
+    nameOf:n=>load()[userId(n)]?.name||null,
+    any:()=>Object.keys(load()).length>0
+  };
+}
+/* ===================== ACCOUNTS-END ===================== */
+
 
 /* ---------- app state ---------- */
 const $=id=>document.getElementById(id),dateKey=()=>new Date().toLocaleDateString('en-CA');
@@ -664,13 +740,20 @@ const LESSONS=UNITS.flatMap((u,ui)=>[...(u.letters||[]).map(l=>({type:'letter',i
 const ALL_LETTERS=LESSONS.filter(l=>l.type==='letter').map(l=>l.id);
 const WORDS=LESSONS.filter(l=>l.type==='word');
 const VALID=new Set(LESSONS.map(l=>l.id));
-const KEY='signsense-v2';
-let saved={};try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+// Progress is saved per person: guests use the original slot, each signed-up
+// profile gets its own (signsense-v2:user:<name>).
+const KEY_BASE='signsense-v2';
+let KEY=KEY_BASE;
 const arr=v=>Array.isArray(v)?v:[];
-let state={done:arr(saved.done).filter(x=>VALID.has(x)),self:arr(saved.self).filter(x=>VALID.has(x)),xp:Number(saved.xp)||0,streak:Number(saved.streak)||0,lastDay:saved.lastDay||'',dailyDay:saved.dailyDay||dateKey(),dailyCount:Number(saved.dailyCount)||0,quizToday:Number(saved.quizToday)||0,hearts:saved.hearts==null?5:Number(saved.hearts),heartsDay:saved.heartsDay||dateKey(),perfectQuiz:!!saved.perfectQuiz,unlockAll:!!saved.unlockAll,tone:Number.isInteger(saved.tone)?saved.tone:1};
-try{const legacy=JSON.parse(localStorage.getItem('signsense-done')||'[]');if(Array.isArray(legacy)){state.done=[...new Set([...state.done,...legacy])].filter(x=>VALID.has(x));state.xp=Math.max(state.xp,Number(localStorage.getItem('signsense-xp'))||0)}}catch(e){}
-if(state.dailyDay!==dateKey()){state.dailyDay=dateKey();state.dailyCount=0;state.quizToday=0}
-if(state.heartsDay!==dateKey()){state.heartsDay=dateKey();state.hearts=5}
+function loadState(key){
+  let saved={};try{saved=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
+  const state={done:arr(saved.done).filter(x=>VALID.has(x)),self:arr(saved.self).filter(x=>VALID.has(x)),xp:Number(saved.xp)||0,streak:Number(saved.streak)||0,lastDay:saved.lastDay||'',dailyDay:saved.dailyDay||dateKey(),dailyCount:Number(saved.dailyCount)||0,quizToday:Number(saved.quizToday)||0,hearts:saved.hearts==null?5:Number(saved.hearts),heartsDay:saved.heartsDay||dateKey(),perfectQuiz:!!saved.perfectQuiz,unlockAll:!!saved.unlockAll,tone:Number.isInteger(saved.tone)?saved.tone:1};
+  if(key===KEY_BASE)try{const legacy=JSON.parse(localStorage.getItem('signsense-done')||'[]');if(Array.isArray(legacy)){state.done=[...new Set([...state.done,...legacy])].filter(x=>VALID.has(x));state.xp=Math.max(state.xp,Number(localStorage.getItem('signsense-xp'))||0)}}catch(e){}
+  if(state.dailyDay!==dateKey()){state.dailyDay=dateKey();state.dailyCount=0;state.quizToday=0}
+  if(state.heartsDay!==dateKey()){state.heartsDay=dateKey();state.hearts=5}
+  return state;
+}
+let state=loadState(KEY);
 
 let index=0,tab='learn',stream=null,hands=null,running=false,busy=false,lastFrame=0,holdStart=0,completedLatch=false,sessionDone=new Set(),lastFeedback='',toastTimeout=null;
 let wordPos=0,trail=[],lastShapeT=0,lastHit=0;
@@ -1199,7 +1282,53 @@ $('unlockBtn').onclick=()=>{state.unlockAll=true;persist();render();toast('🔓 
 $('resetBtn').onclick=()=>{if(!confirm('Reset all SignSense progress in this browser?'))return;state={done:[],self:[],xp:0,streak:0,lastDay:'',dailyDay:dateKey(),dailyCount:0,quizToday:0,hearts:5,heartsDay:dateKey(),perfectQuiz:false,unlockAll:false,tone:state.tone};try{localStorage.removeItem('signsense-done');localStorage.removeItem('signsense-xp')}catch(e){}sessionDone.clear();persist();choose(0);toast('Progress reset')};
 document.addEventListener('keydown',e=>{if(tab!=='practice'||e.target.matches('input,textarea'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
 window.addEventListener('pagehide',()=>stream?.getTracks().forEach(t=>t.stop()));
-persist();choose(nextLessonIndex());refreshOut();drawRest();
+/* ---------- accounts ---------- */
+const safeStore={getItem:k=>{try{return localStorage.getItem(k)}catch(e){return null}},setItem:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const accounts=createAccounts(safeStore);
+let currentUser=null,authMode='login';
+// Switch to a profile (null = guest): load that person's saved progress.
+function useProfile(name){
+  if(running)stop();pausePlayer();
+  currentUser=name;KEY=name?`${KEY_BASE}:user:${userId(name)}`:KEY_BASE;
+  state=loadState(KEY);sessionDone.clear();quiz=null;
+  safeStore.setItem('signsense-session',name?userId(name):'guest');
+  $('userName').textContent=name||'Guest';$('authBtn').textContent=name?'Log out':'Log in';
+  $('authView').classList.add('hidden');
+  persist();typer.clear();shownText=null;refreshOut();drawRest();
+  choose(nextLessonIndex());setTab('learn');
+}
+function setAuthMode(m){
+  authMode=m;const up=m==='signup';
+  document.querySelectorAll('[data-auth]').forEach(b=>{const on=b.dataset.auth===m;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});
+  $('authTitle').textContent=up?'Create your profile':'Welcome back';
+  $('authSub').textContent=up?'Pick a username and password. Your progress is saved under it.':'Log in to pick up where you left off.';
+  $('authConfirmRow').classList.toggle('hidden',!up);$('authSubmit').textContent=up?'Sign up':'Log in';
+  $('authPass').autocomplete=up?'new-password':'current-password';$('authError').textContent='';
+}
+function showAuth(m){setAuthMode(m);$('authView').classList.remove('hidden');$('authUser').focus()}
+document.querySelectorAll('[data-auth]').forEach(b=>b.onclick=()=>setAuthMode(b.dataset.auth));
+$('authForm').onsubmit=async e=>{
+  e.preventDefault();
+  const name=$('authUser').value.trim(),pw=$('authPass').value,err=$('authError');
+  if(authMode==='signup'&&pw!==$('authPass2').value){err.textContent='The two passwords don\u2019t match.';return}
+  if(!window.crypto?.subtle){err.textContent='Accounts need the app to be opened over https or localhost.';return}
+  $('authSubmit').disabled=true;
+  try{
+    const r=authMode==='signup'?await accounts.signUp(name,pw):await accounts.logIn(name,pw);
+    if(r.error){err.textContent=r.error;return}
+    $('authPass').value='';$('authPass2').value='';
+    useProfile(r.user);toast(authMode==='signup'?`Welcome, ${r.user}!`:`Welcome back, ${r.user}!`);
+  }catch(x){err.textContent='Something went wrong. Please try again.'}
+  finally{$('authSubmit').disabled=false}
+};
+$('guestBtn').onclick=()=>useProfile(null);
+$('authBtn').onclick=()=>{if(currentUser){if(running)stop();currentUser=null;safeStore.setItem('signsense-session','')}showAuth('login')};
+
+// Start: reopen the last profile, or ask who is signing in.
+const lastSession=safeStore.getItem('signsense-session');
+if(lastSession==='guest')useProfile(null);
+else if(lastSession&&accounts.nameOf(lastSession))useProfile(accounts.nameOf(lastSession));
+else{persist();choose(nextLessonIndex());refreshOut();drawRest();showAuth(accounts.any()?'login':'signup')}
 </script>
 </body>
 </html>
