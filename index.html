@@ -23,13 +23,13 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
 .sidebarbottom{margin-top:auto;background:#f3efff;padding:16px;border-radius:18px;color:#6454ac;font-size:12px;line-height:1.65}
 .content{width:min(1230px,100%);padding:27px 34px 65px;margin:auto}
 .header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:23px}
-.eyebrow{color:var(--purple);font-weight:900;letter-spacing:1.7px;font-size:11px}
-.header h1{font-size:29px;margin:5px 0 0;font-weight:900}
+.eyebrow{color:var(--muted);font-weight:800;font-size:12px}
+.header h1{font-size:29px;margin:0;font-weight:900}
+.header p{margin:4px 0 0;color:var(--muted);font-size:14px;font-weight:700}
 .stats{display:flex;gap:8px;flex-wrap:wrap}
 .stat{background:white;border:2px solid var(--line);border-radius:14px;padding:9px 13px;font-weight:900;white-space:nowrap}.stat .num{margin-left:5px}
-.hero{background:linear-gradient(115deg,#7455ed,#a383fa);color:white;padding:24px 28px;border-radius:23px;display:flex;justify-content:space-between;align-items:center;gap:16px;box-shadow:0 8px 0 #e6ddff;margin-bottom:27px}
-.hero h2{font-size:26px;margin:4px 0}.hero p{margin:0;color:#f3ecff}.hero .big{font-size:65px}
-.hero .btn{margin-top:14px;background:white;color:var(--purple);box-shadow:0 4px 0 #d9ccff}
+.nextup{background:white;border:2px solid var(--line);border-radius:18px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.nextup h2{font-size:21px;margin:3px 0 0;font-weight:900}
 .grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:19px}
 .panel{background:white;border:2px solid var(--line);border-radius:22px;padding:20px;min-width:0}
 .panel h3{margin:0;font-size:20px;font-weight:900}
@@ -151,7 +151,7 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
 .field:focus{outline:3px solid #a79aff;outline-offset:1px;border-color:#cbbcff}
 .examples{display:flex;gap:8px;flex-wrap:wrap}.examples .btn{padding:9px 13px;font-size:13px}
 @media(max-width:1050px){.shell{grid-template-columns:1fr}.sidebar{height:auto;position:static;flex-direction:row;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 18px}.brand{padding:0}.modeswitch{margin:0}.nav{display:flex}.sidebarbottom{display:none}.content{padding:20px}}
-@media(max-width:750px){.header{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.rowcards{grid-template-columns:1fr}.hero .big{display:none}.nav button{font-size:12px;padding:10px}.nav button span{margin-right:3px}.camera{height:310px}.stage{height:300px}.achievements{grid-template-columns:repeat(3,1fr)}.unitprog{min-width:90px}}
+@media(max-width:750px){.header{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.rowcards{grid-template-columns:1fr}.nav button{font-size:12px;padding:10px}.nav button span{margin-right:3px}.camera{height:310px}.stage{height:300px}.achievements{grid-template-columns:repeat(3,1fr)}.unitprog{min-width:90px}}
 @media(max-width:480px){.sidebar{flex-wrap:wrap;gap:10px}.brand{font-size:21px}.lesson-grid{grid-template-columns:repeat(2,1fr)}.content{padding:15px}.hero{padding:18px}.header h1{font-size:25px}.achievements{grid-template-columns:repeat(2,1fr)}.opts{grid-template-columns:1fr}.unithead{flex-wrap:wrap}.unitprog{margin-left:0;text-align:left;width:100%}}
 </style>
 </head>
@@ -160,8 +160,8 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
 <aside class="sidebar">
   <div class="brand"><div class="brandicon">🤟</div>SignSense</div>
   <div class="modeswitch" role="group" aria-label="App mode">
-    <button data-mode="learn" class="active" aria-pressed="true">📚 Learn</button>
-    <button data-mode="translate" aria-pressed="false">🔄 Translate</button>
+    <button data-mode="learn" class="active" aria-pressed="true">Learn</button>
+    <button data-mode="translate" aria-pressed="false">Translate</button>
   </div>
   <nav class="nav" data-modenav="learn" aria-label="Learning">
     <button data-tab="learn" class="active"><span>🗺️</span>Learn</button>
@@ -173,11 +173,11 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
     <button data-tab="signtext"><span>✋</span>Sign → Text</button>
     <button data-tab="textsign"><span>⌨️</span>Text → Sign</button>
   </nav>
-  <div class="sidebarbottom">💜 <b>Made for real learning</b><br>Handshape, movement, location and facial expression all matter in ASL. Camera checks here are simplified practice, not a fluency assessment.</div>
+  <div class="sidebarbottom"><b>A note on ASL</b><br>Handshape, movement, location and facial expression all matter in ASL. Camera checks here are simplified practice, not a fluency assessment.</div>
 </aside>
 <main class="content">
 <header class="header">
-  <div><div class="eyebrow">YOUR ASL ADVENTURE</div><h1 id="pageTitle">Every sign is a new superpower ✨</h1></div>
+  <div><h1 id="pageTitle">Learn</h1><p id="pageSub">Pick up where you left off, or choose any open lesson.</p></div>
   <div class="stats">
     <div class="stat">🔥 <span class="num" id="streak">0</span> day streak</div>
     <div class="stat">⚡ <span class="num" id="xp">0</span> XP</div>
@@ -187,46 +187,37 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
 
 <!-- ================= LEARN ================= -->
 <div id="learnView">
-  <div class="hero">
-    <div>
-      <div class="eyebrow" style="color:#e8dfff" id="heroEyebrow">THE FULL ALPHABET + WORDS</div>
-      <h2 id="heroTitle">Start your signing journey!</h2>
-      <p>Watch • practice • get feedback • earn XP</p>
-      <button class="btn" id="continueBtn">Continue →</button>
-    </div>
-    <div class="big">🖐️</div>
+  <div class="nextup">
+    <div><div class="eyebrow" id="heroEyebrow">Unit 1 · First handshapes</div><h2 id="heroTitle">Start with the alphabet</h2></div>
+    <button class="btn" id="continueBtn">Continue →</button>
   </div>
   <div class="rowcards">
     <div class="smallcard"><strong id="alphaProgress">0 / 26 letters</strong><p>Alphabet progress</p><div class="track" style="margin-top:12px"><div class="fill" id="alphaFill"></div></div></div>
     <div class="smallcard"><strong id="dailyProgress">0 / 3</strong><p>Today's practice goal</p><div class="track" style="margin-top:12px"><div class="fill" id="dailyFill"></div></div></div>
     <div class="smallcard"><strong id="wordProgress">0 / 8 words</strong><p>Fingerspelled words</p><div class="track" style="margin-top:12px"><div class="fill" id="wordFill"></div></div></div>
   </div>
-  <section class="section"><h2>🗺️ Your learning path</h2><div id="units"></div></section>
-  <section class="section panel"><div class="panelhead"><h3>🎯 Daily quests</h3><span class="pill">Resets each day</span></div><div id="quests"></div></section>
+  <section class="section"><h2>Your learning path</h2><div id="units"></div></section>
+  <section class="section panel"><div class="panelhead"><h3>Daily quests</h3><span class="pill">Resets each day</span></div><div id="quests"></div></section>
 </div>
 
 <!-- ================= PRACTICE ================= -->
 <div id="practiceView" class="hidden">
-  <div class="hero">
-    <div><div class="eyebrow" style="color:#e8dfff">LIVE PRACTICE STUDIO</div><h2>Show what your hands can do!</h2><p>Position one hand in the camera frame and hold your target shape.</p></div>
-    <div class="big">📸</div>
-  </div>
   <div class="grid">
     <section class="panel">
-      <div class="panelhead"><h3>📷 Your camera</h3><span class="pill" id="cameraTag">● CAMERA OFF</span></div>
+      <div class="panelhead"><h3>Camera</h3><span class="pill" id="cameraTag">● CAMERA OFF</span></div>
       <div class="camera">
         <video id="video" autoplay muted playsinline></video><canvas id="canvas"></canvas>
         <div id="empty" class="placeholder"><div class="emoji">🖐️</div><b>Ready when you are?</b>Turn on your camera to see your hand landmarks and start practicing.</div>
         <div class="camstatus" id="overlay">● TRACKING LIVE</div>
       </div>
-      <div class="actions"><button class="btn full" id="startBtn">📷 Enable camera</button><button class="btn alt" id="stopBtn" disabled>Stop</button></div>
+      <div class="actions"><button class="btn full" id="startBtn">Turn on camera</button><button class="btn alt" id="stopBtn" disabled>Stop</button></div>
       <div id="feedback" class="feedback" role="status" aria-live="polite">Select a lesson and enable your camera. Camera video stays in your browser.</div>
       <div class="chips" id="chips" aria-label="Finger checklist"></div>
       <div class="thumbnote" id="thumbNote"></div>
       <div class="actions"><label class="toggle"><input type="checkbox" id="soundToggle" checked> Sound effects</label><label class="toggle"><input type="checkbox" id="landmarkToggle" checked> Show hand landmarks</label></div>
     </section>
     <section class="panel">
-      <div class="panelhead"><h3 id="lessonHeading">📚 Your lesson</h3><span class="pill" id="lessonStatus">Not completed</span></div>
+      <div class="panelhead"><h3 id="lessonHeading">Your lesson</h3><span class="pill" id="lessonStatus">Not completed</span></div>
       <div class="target">
         <div class="handbig" id="handPic"></div>
         <div class="letter" id="targetWord">A</div>
@@ -238,36 +229,28 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
       <div class="minihead"><span id="holdLabel">Hold the handshape steady</span><strong id="holdText">0%</strong></div>
       <div class="track"><div class="fill" id="holdFill"></div></div>
       <div class="actions"><button class="btn alt full" id="prevBtn">← Previous</button><button class="btn full" id="nextBtn">Next →</button></div>
-      <div class="actions"><button class="btn alt full" id="retryBtn">↻ Practice again</button><button class="btn ghost full" id="selfBtn" title="Use this if the camera can't see your sign clearly">✋ I signed it</button></div>
-      <div class="tip" id="practiceTip">💡 Hold the detected handshape for 1.5 seconds. The simplified classifier can make mistakes, so check your signing with Deaf-led learning resources.</div>
+      <div class="actions"><button class="btn alt full" id="retryBtn">Practice again</button><button class="btn ghost full" id="selfBtn" title="Use this if the camera can't see your sign clearly">I signed it</button></div>
+      <div class="tip" id="practiceTip">Hold the detected handshape for 1.5 seconds. The simplified classifier can make mistakes, so check your signing with Deaf-led learning resources.</div>
     </section>
   </div>
 </div>
 
 <!-- ================= QUIZ ================= -->
 <div id="quizView" class="hidden">
-  <div class="hero">
-    <div><div class="eyebrow" style="color:#e8dfff">NO CAMERA NEEDED</div><h2>Handshape quiz</h2><p>Six quick questions. Each wrong answer costs a heart.</p></div>
-    <div class="big">🧠</div>
-  </div>
   <div class="quizwrap panel" id="quizBox"></div>
 </div>
 
 <!-- ================= PROGRESS ================= -->
 <div id="progressView" class="hidden">
-  <div class="hero">
-    <div><div class="eyebrow" style="color:#e8dfff">YOUR PROGRESS</div><h2>Look how far you've come!</h2><p>Keep practicing, one handshape at a time.</p></div>
-    <div class="big">🏆</div>
-  </div>
   <div class="rowcards">
     <div class="smallcard"><strong id="progressXp">0 XP</strong><p>Total experience</p></div>
     <div class="smallcard"><strong id="progressDone">0 of 26</strong><p>Letters mastered</p></div>
     <div class="smallcard"><strong id="progressStreak">0 days</strong><p>Current practice streak</p></div>
   </div>
-  <section class="section panel"><h3>🔤 Your alphabet</h3><div class="alpha" id="alphaGrid"></div>
+  <section class="section panel"><h3>Your alphabet</h3><div class="alpha" id="alphaGrid"></div>
     <div class="legend">🟩 verified by camera &nbsp; 🟨 self-checked &nbsp; ⬜ not yet — tap any unlocked letter to practice</div></section>
-  <section class="section panel"><h3>🏅 Achievements</h3><div class="achievements" id="achievements" style="margin-top:15px"></div></section>
-  <section class="section panel"><h3>⚙️ Learning options</h3>
+  <section class="section panel"><h3>Achievements</h3><div class="achievements" id="achievements" style="margin-top:15px"></div></section>
+  <section class="section panel"><h3>Learning options</h3>
     <p style="color:var(--muted);font-size:13px;line-height:1.6">Units unlock as you go. Teachers and returning signers can open everything at once.</p>
     <p style="color:var(--muted);font-size:13px;margin:16px 0 6px">Hand drawing skin tone</p><div class="tones" id="tonePicker"></div>
     <div class="actions"><button class="btn alt" id="unlockBtn">🔓 Unlock all units</button><button class="btn ghost" id="resetBtn">Reset progress</button></div>
@@ -276,24 +259,20 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
 
 <!-- ================= TRANSLATE: SIGN → TEXT ================= -->
 <div id="signtextView" class="hidden">
-  <div class="hero">
-    <div><div class="eyebrow" style="color:#e8dfff">TRANSLATOR · SIGN → TEXT</div><h2>Fingerspell, and watch it become words</h2><p>Sign one letter at a time. Lower your hand for a moment to add a space.</p></div>
-    <div class="big">✋</div>
-  </div>
   <div class="grid">
     <section class="panel">
-      <div class="panelhead"><h3>📷 Your camera</h3><span class="pill" id="tCameraTag">● CAMERA OFF</span></div>
+      <div class="panelhead"><h3>Camera</h3><span class="pill" id="tCameraTag">● CAMERA OFF</span></div>
       <div class="camera">
         <video id="tVideo" autoplay muted playsinline></video><canvas id="tCanvas"></canvas>
         <div id="tEmpty" class="placeholder"><div class="emoji">✋</div><b>Ready to translate?</b>Turn on your camera and fingerspell a word.</div>
         <div class="camstatus" id="tOverlay">● TRANSLATING LIVE</div>
       </div>
-      <div class="actions"><button class="btn full" id="tStartBtn">📷 Enable camera</button><button class="btn alt" id="tStopBtn" disabled>Stop</button></div>
+      <div class="actions"><button class="btn full" id="tStartBtn">Turn on camera</button><button class="btn alt" id="tStopBtn" disabled>Stop</button></div>
       <div id="tFeedback" class="feedback" role="status" aria-live="polite">Enable your camera to start. Camera video stays in your browser.</div>
       <div class="actions"><label class="toggle"><input type="checkbox" id="tAutoSpace" checked> Add a space when I lower my hand</label><label class="toggle"><input type="checkbox" id="tLandmarkToggle" checked> Show hand landmarks</label></div>
     </section>
     <section class="panel">
-      <div class="panelhead"><h3>💬 Translation</h3><span class="pill" id="tCount">0 letters</span></div>
+      <div class="panelhead"><h3>Translation</h3><span class="pill" id="tCount">0 letters</span></div>
       <div class="outbox" id="tOut" aria-live="polite" aria-label="Translated text"></div>
       <div class="guess">
         <div class="handicon" id="tGuessPic"></div>
@@ -301,27 +280,23 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
         <div class="guessbar"><div class="track"><div class="fill" id="tHold"></div></div></div>
       </div>
       <div class="actions"><button class="btn alt full" id="tSpace">␣ Space</button><button class="btn alt full" id="tDel">⌫ Delete</button><button class="btn ghost full" id="tClear">Clear</button></div>
-      <div class="actions"><button class="btn full" id="tSpeak">🔊 Read aloud</button><button class="btn alt full" id="tCopy">📋 Copy</button><button class="btn alt full" id="tSend">⌨️ Show as signs</button></div>
-      <div class="tip">💡 Hold each letter still for about a second until it's added. To repeat a letter (like the L's in HELLO), relax or lower your hand, then sign it again. Draw J and Z in the air. This translates fingerspelling (the ASL alphabet), not whole ASL signs or grammar.</div>
+      <div class="actions"><button class="btn full" id="tSpeak">Read aloud</button><button class="btn alt full" id="tCopy">Copy</button><button class="btn alt full" id="tSend">Show as signs</button></div>
+      <div class="tip">Hold each letter still for about a second until it's added. To repeat a letter (like the L's in HELLO), relax or lower your hand, then sign it again. Draw J and Z in the air. This translates fingerspelling (the ASL alphabet), not whole ASL signs or grammar.</div>
     </section>
   </div>
 </div>
 
 <!-- ================= TRANSLATE: TEXT → SIGN ================= -->
 <div id="textsignView" class="hidden">
-  <div class="hero">
-    <div><div class="eyebrow" style="color:#e8dfff">TRANSLATOR · TEXT → SIGN</div><h2>Type it, and watch the hand spell it</h2><p>The hand fingerspells your words, one letter at a time.</p></div>
-    <div class="big">⌨️</div>
-  </div>
   <div class="grid">
     <section class="panel">
-      <div class="panelhead"><h3>🖐️ Signing hand</h3><span class="pill" id="tsStatus">Ready</span></div>
+      <div class="panelhead"><h3>Signing hand</h3><span class="pill" id="tsStatus">Ready</span></div>
       <div class="stage" id="tsStage"></div>
       <div class="nowrow" aria-live="polite"><div class="nowletter" id="tsNow">—</div><p id="tsNowDesc">Type something and press “Sign it”.</p></div>
       <div class="wordboxes" id="tsStrip"></div>
     </section>
     <section class="panel">
-      <div class="panelhead"><h3>⌨️ Your words</h3></div>
+      <div class="panelhead"><h3>Your words</h3></div>
       <label for="tsInput" class="fieldlabel">Type a word or short sentence</label>
       <input id="tsInput" class="field" maxlength="60" placeholder="e.g. hello" autocomplete="off">
       <div class="actions"><button class="btn full" id="tsPlay">▶ Sign it</button><button class="btn alt" id="tsPause" disabled>⏸ Pause</button><button class="btn alt" id="tsReplay" disabled>↻ Replay</button></div>
@@ -329,7 +304,7 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
       <select id="tsSpeed" class="field"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select>
       <p class="fieldlabel" style="margin-top:16px">Try one</p>
       <div class="examples"><button class="btn ghost" data-example="hi">HI</button><button class="btn ghost" data-example="hello">HELLO</button><button class="btn ghost" data-example="i love asl">I LOVE ASL</button><button class="btn ghost" data-example="jazz">JAZZ</button></div>
-      <div class="tip">💡 Only the letters A–Z are signed; numbers and punctuation are skipped. Repeated letters get a small bounce, and J and Z are drawn in the air. Signers use whole-word signs for most everyday words; fingerspelling is mostly for names and new words.</div>
+      <div class="tip">Only the letters A–Z are signed; numbers and punctuation are skipped. Repeated letters get a small bounce, and J and Z are drawn in the air. Signers use whole-word signs for most everyday words; fingerspelling is mostly for names and new words.</div>
     </section>
   </div>
 </div>
@@ -780,7 +755,7 @@ function nextLessonIndex(){const d=doneSet();const i=LESSONS.findIndex((l,i)=>le
 const label=l=>l.type==='word'?l.word:l.id;
 
 /* ---------- navigation ---------- */
-const TITLES={learn:'Every sign is a new superpower ✨',practice:'Practice makes progress 📷',quiz:'Test your eyes 🧠',progress:'Your achievements 🏆',signtext:'Sign → Text ✋',textsign:'Text → Sign ⌨️'};
+const TITLES={learn:['Learn','Pick up where you left off, or choose any open lesson.'],practice:['Practice','Hold your hand up to the camera and copy the shape on the right.'],quiz:['Quiz','Six questions, no camera needed. A wrong answer costs a heart.'],progress:['Progress','Your letters, streak and badges so far.'],signtext:['Sign to text','Fingerspell one letter at a time. Drop your hand for a second to add a space.'],textsign:['Text to sign','Type a word and the hand spells it out, letter by letter.']};
 // Two modes: Learn (the lessons) and Translate (the translator tools).
 const MODE_OF={learn:'learn',practice:'learn',quiz:'learn',progress:'learn',signtext:'translate',textsign:'translate'};
 const lastTab={learn:'learn',translate:'signtext'};
@@ -792,7 +767,7 @@ function setTab(t){
   Object.keys(MODE_OF).forEach(n=>{$(n+'View').classList.toggle('hidden',n!==t);document.querySelector(`[data-tab="${n}"]`).classList.toggle('active',n===t)});
   document.querySelectorAll('[data-modenav]').forEach(n=>n.classList.toggle('hidden',n.dataset.modenav!==mode));
   document.querySelectorAll('[data-mode]').forEach(b=>{const on=b.dataset.mode===mode;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});
-  $('pageTitle').textContent=TITLES[t];
+  $('pageTitle').textContent=TITLES[t][0];$('pageSub').textContent=TITLES[t][1];
   if(t==='quiz'&&!quiz)renderQuizStart();
   if(t==='signtext')refreshOut();
   if(t==='textsign')player.tl.length?drawFrame(player.elapsed):drawRest();
@@ -821,8 +796,8 @@ function render(){
   $('wordProgress').textContent=`${wordsDone} / ${WORDS.length} words`;$('wordFill').style.width=(wordsDone/WORDS.length*100)+'%';
   $('dailyProgress').textContent=`${Math.min(state.dailyCount,3)} / 3`;$('dailyFill').style.width=(Math.min(state.dailyCount,3)/3*100)+'%';
   const nx=LESSONS[nextLessonIndex()],allDone=LESSONS.every(l=>d.has(l.id));
-  $('heroEyebrow').textContent=allDone?'EVERYTHING COMPLETE':`UNIT ${nx.unit+1} · ${UNITS[nx.unit].title.toUpperCase()}`;
-  $('heroTitle').textContent=allDone?'You finished every lesson! 🎉':state.done.length?'Welcome back — keep going!':'Start your signing journey!';
+  $('heroEyebrow').textContent=allDone?'All units done':`Unit ${nx.unit+1} · ${UNITS[nx.unit].title}`;
+  $('heroTitle').textContent=allDone?'You finished every lesson':state.done.length?'Welcome back':'Start with the alphabet';
   $('continueBtn').textContent=allDone?'Review anything →':`Continue: ${nx.type==='word'?'word '+nx.word:'letter '+nx.id} →`;
 
   // learning path
@@ -831,7 +806,7 @@ function render(){
       const status=isD?(selfS.has(l.id)?'<div class="complete">✓ Self-checked</div>':'<div class="complete">✓ Completed</div>'):`<div class="todo">${open?'Practice →':'🔒 Locked'}</div>`;
       const corner=sp?.beta?'🧪':sp?.motion?'🌀':'';
       return `<button class="tile ${index===i&&tab==='practice'?'active':''} ${isD?'isdone':''}" data-lesson="${i}" aria-label="${l.type==='word'?'Fingerspell '+l.word:'Practice letter '+l.id}"><span class="corner">${corner}</span><div class="handicon">${sp?handSVG(l.id):'<span class="emoji">💬</span>'}</div><div class="letter ${l.type==='word'?'word':''}">${label(l)}</div><div class="small">Lesson ${i+1}</div>${status}</button>`}).join('');
-    return `<section class="unit ${open?'':'locked'}"><div class="unithead"><div class="unitbadge">${u.emoji}</div><div><div class="eyebrow">UNIT ${ui+1}</div><h3>${u.title}</h3><p>${u.sub}</p></div><div class="unitprog">${cnt} / ${tot} done<div class="track"><div class="fill ${cnt===tot?'done':''}" style="width:${cnt/tot*100}%"></div></div></div></div><div class="lesson-grid">${tiles}</div>${open?'':`<div class="lockmsg">🔒 Complete ${unitNeed(ui-1)} lessons in Unit ${ui} to unlock — or use “Unlock all units” on the Progress page.</div>`}</section>`}).join('');
+    return `<section class="unit ${open?'':'locked'}"><div class="unithead"><div class="unitbadge">${u.emoji}</div><div><div class="eyebrow">Unit ${ui+1}</div><h3>${u.title}</h3><p>${u.sub}</p></div><div class="unitprog">${cnt} / ${tot} done<div class="track"><div class="fill ${cnt===tot?'done':''}" style="width:${cnt/tot*100}%"></div></div></div></div><div class="lesson-grid">${tiles}</div>${open?'':`<div class="lockmsg">🔒 Complete ${unitNeed(ui-1)} lessons in Unit ${ui} to unlock — or use “Unlock all units” on the Progress page.</div>`}</section>`}).join('');
   document.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>{if(choose(+b.dataset.lesson))setTab('practice')});
 
   // quests
@@ -840,17 +815,17 @@ function render(){
 
   // lesson panel
   const isWord=L.type==='word',spec=currentSpec();
-  $('lessonHeading').textContent=isWord?'💬 Fingerspell this word':'📚 Your lesson';
+  $('lessonHeading').textContent=isWord?'Fingerspell this word':'Your lesson';
   $('targetWord').textContent=label(L);$('targetWord').classList.toggle('word',isWord);
   $('handPic').innerHTML=handSVG(isWord?L.word[Math.min(wordPos,L.word.length-1)]:L.id,'handsvg big');
   $('targetDesc').textContent=isWord?`Sign each letter in order and hold it briefly. Now signing: ${L.word[Math.min(wordPos,L.word.length-1)]} — ${spec.desc}`:spec.desc;
-  $('memoryTip').textContent='💭 '+(isWord?'Keep your hand in the same spot and let each letter flow into the next.':spec.memory);
+  $('memoryTip').textContent=(isWord?'Keep your hand in the same spot and let each letter flow into the next.':spec.memory);
   $('modeBadge').innerHTML=!isWord&&spec.beta?'<span class="badge">🧪 Tricky for webcams — use “I signed it” if it won’t register</span>':!isWord&&spec.motion?'<span class="badge motion">🌀 Movement letter — make the shape, then draw it in the air</span>':'';
   $('wordBoxes').classList.toggle('hidden',!isWord);
   if(isWord)$('wordBoxes').innerHTML=[...L.word].map((c,i)=>`<span class="${i<wordPos?'done':i===wordPos&&!completedLatch?'now':''}">${c}</span>`).join('');
   $('lessonStatus').textContent=d.has(L.id)?(selfS.has(L.id)?'✓ Self-checked':'✓ Completed'):'Not completed';
   $('lessonStatus').classList.toggle('live',d.has(L.id));
-  $('practiceTip').textContent=isWord?'💡 Each letter needs to be held for about half a second. The classifier is simplified, so check your signing with Deaf-led learning resources.':spec.motion?'💡 Hold the starting handshape, then trace the movement in one smooth stroke within about two seconds. Your fingertip trail appears on the camera.':'💡 Hold the detected handshape for 1.5 seconds. The finger checklist shows what the camera sees. The simplified classifier can make mistakes, so check your signing with Deaf-led learning resources.';
+  $('practiceTip').textContent=isWord?'Each letter needs to be held for about half a second. The classifier is simplified, so check your signing with Deaf-led learning resources.':spec.motion?'Hold the starting handshape, then trace the movement in one smooth stroke within about two seconds. Your fingertip trail appears on the camera.':'Hold the detected handshape for 1.5 seconds. The finger checklist shows what the camera sees. The simplified classifier can make mistakes, so check your signing with Deaf-led learning resources.';
   if(!practiceLive())renderChips(null);
 
   // progress page
@@ -1035,13 +1010,13 @@ async function start(name){
     canvas.width=video.videoWidth;canvas.height=video.videoHeight;setAspect(video.videoWidth/video.videoHeight);
     running=true;$(c.empty).classList.add('hidden');$(c.overlay).classList.add('show');$(c.tag).textContent='● CAMERA LIVE';$(c.tag).classList.add('live');
     $(c.stopBtn).disabled=false;$(c.startBtn).textContent='Camera running';c.msg('Camera on! Show your hand to begin.','');loop();
-  }catch(e){c.msg('Could not start camera: '+e.message,'warn');$(c.startBtn).disabled=false;$(c.startBtn).textContent='📷 Try camera again';if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;try{await hands?.close()}catch(e){}hands=null}
+  }catch(e){c.msg('Could not start camera: '+e.message,'warn');$(c.startBtn).disabled=false;$(c.startBtn).textContent='Try again';if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;try{await hands?.close()}catch(e){}hands=null}
 }
 async function stop(){
   const c=cam;if(!c)return;
   running=false;stream?.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;try{await hands?.close()}catch(e){}hands=null;
   ctx.clearRect(0,0,canvas.width,canvas.height);$(c.empty).classList.remove('hidden');$(c.overlay).classList.remove('show');
-  $(c.tag).textContent='● CAMERA OFF';$(c.tag).classList.remove('live');$(c.stopBtn).disabled=true;$(c.startBtn).disabled=false;$(c.startBtn).textContent='📷 Enable camera';
+  $(c.tag).textContent='● CAMERA OFF';$(c.tag).classList.remove('live');$(c.stopBtn).disabled=true;$(c.startBtn).disabled=false;$(c.startBtn).textContent='Turn on camera';
   c.msg('Camera stopped. Your video was not uploaded.','');c.onStop();
 }
 
@@ -1171,7 +1146,7 @@ function renderQuestion(){
     prompt=`<div class="quizq">How do you sign this letter?</div><div class="quizprompt"><div class="letter">${q.ans}</div></div>`;
     opts=q.opts.map(o=>`<button class="opt" data-opt="${o}">${esc(LETTERS[o].desc)}</button>`).join('');
   }
-  box.innerHTML=`<div class="panelhead" style="margin-bottom:4px"><span class="eyebrow">QUESTION ${quiz.i+1} OF ${quiz.qs.length}</span><span class="pill">💜 ${state.hearts}</span></div>${bar}${prompt}<div class="opts">${opts}</div><div id="qFeedback" class="feedback hidden"></div><div class="actions hidden" id="qNextRow"><button class="btn full" id="qNext">${quiz.i===quiz.qs.length-1?'See results →':'Next question →'}</button></div>`;
+  box.innerHTML=`<div class="panelhead" style="margin-bottom:4px"><span class="eyebrow">Question ${quiz.i+1} of ${quiz.qs.length}</span><span class="pill">💜 ${state.hearts}</span></div>${bar}${prompt}<div class="opts">${opts}</div><div id="qFeedback" class="feedback hidden"></div><div class="actions hidden" id="qNextRow"><button class="btn full" id="qNext">${quiz.i===quiz.qs.length-1?'See results →':'Next question →'}</button></div>`;
   box.querySelectorAll('[data-opt]').forEach(b=>b.onclick=()=>answer(b.dataset.opt));
 }
 function answer(choice){
@@ -1208,7 +1183,7 @@ $('tSpeak').onclick=()=>{
   if(!('speechSynthesis' in window))return toast('Reading aloud is not supported in this browser');
   speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt.toLowerCase());u.lang='en-US';speechSynthesis.speak(u);
 };
-$('tCopy').onclick=async()=>{const txt=typer.text.trim();if(!txt)return toast('Nothing to copy yet');try{await navigator.clipboard.writeText(txt);toast('📋 Copied')}catch(e){toast('Could not copy')}};
+$('tCopy').onclick=async()=>{const txt=typer.text.trim();if(!txt)return toast('Nothing to copy yet');try{await navigator.clipboard.writeText(txt);toast('Copied')}catch(e){toast('Could not copy')}};
 $('tSend').onclick=()=>{const txt=typer.text.trim();if(!txt)return toast('Sign some letters first');$('tsInput').value=txt;setTab('textsign');playText()};
 // translator: Text → Sign
 $('tsPlay').onclick=playText;
