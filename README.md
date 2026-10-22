@@ -38,6 +38,15 @@ Sign up with a username and password (no email), or continue as a guest. Each pr
 
 Both translator modes work with **fingerspelling** (the 26 letters), not whole-word ASL signs or ASL grammar.
 
+### Install it as an app
+
+SignSense is a progressive web app, so it can be installed and opened like a normal app, with its own icon and window:
+
+- **Chrome or Edge (computer, Android):** click **Install app** in the sidebar, or the install icon in the address bar.
+- **iPhone or iPad:** open it in Safari, tap **Share**, then **Add to Home Screen**.
+
+After the first visit it also works without internet (translation still needs a connection). Installing needs the app's public https link, such as GitHub Pages or Netlify.
+
 ## How it works
 
 | Part | How |
@@ -47,6 +56,7 @@ Both translator modes work with **fingerspelling** (the 26 letters), not whole-w
 | Movement check | For J and Z, the fingertip's path over the last ~2 seconds is checked for the right shape |
 | Sign → Text | Each frame's letter guess goes to a small "typer": a letter is added once it is held still for 0.8 s, a held letter is typed only once, a one-frame misread is ignored, and a hand that is out of view for 1.5 s adds a space |
 | Text → Sign | The same 3D hand poses that draw the lesson pictures are blended joint by joint (finger bends, spread, thumb position, hand tilt) to animate from one letter to the next |
+| Installable app | `manifest.webmanifest` (name, icons, colours) and `sw.js`, a service worker that saves the app and its libraries for offline use |
 | Storage | `localStorage`: progress is saved per profile (guests use the original slot), and no video leaves the computer |
 
 Everything is in one file, `index.html` (HTML, CSS and JavaScript, no build step).
@@ -72,10 +82,12 @@ In GitHub Codespaces, run the same command and open the forwarded port 8000.
 
 `tests/languages.test.js` checks the language list, accented letters, reading translator answers (including errors and the daily-limit warning), and cleaning up text read from photos.
 
+`tests/pwa.test.js` checks the manifest, that every icon exists at the right size, and that the service worker's offline file list is complete.
+
 `tests/accounts.test.js` checks sign-up rules, that logging in needs the right password, that capitals in a username don't matter, and that passwords themselves are never saved.
 
 ```bash
-npm test   # runs all five test files
+npm test   # runs all six test files
 ```
 
 ## Limitations
@@ -88,7 +100,7 @@ SignSenseASL is an educational prototype, not a certified ASL assessment. Finger
 - Reading text in photos: Tesseract.js, Apache 2.0 license
 - Translation: Chrome's built-in Translator API, or the MyMemory translation service
 - Font: Atkinson Hyperlegible (Braille Institute, Google Fonts)
-- AI assistance: the Translate mode (Sign → Text, Text → Sign), the profiles (log in / sign up), the test levels, other-language translation, photo reading, the visual redesign, and their tests were written with help from Claude, an AI assistant by Anthropic.
+- AI assistance: the Translate mode (Sign → Text, Text → Sign), the profiles (log in / sign up), the test levels, other-language translation, photo reading, the installable app, the visual redesign, and their tests were written with help from Claude, an AI assistant by Anthropic.
 - _Add team members and any other tools used during development here._
 
 ## License

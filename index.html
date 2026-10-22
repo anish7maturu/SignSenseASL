@@ -3,6 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Learn and translate the ASL fingerspelling alphabet with your webcam.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#faf8f3">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SignSense">
 <title>SignSense: learn and translate ASL fingerspelling</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
@@ -178,7 +186,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
 .field{width:100%;border:1px solid var(--line);border-radius:6px;padding:12px 14px;font:400 17px 'Atkinson Hyperlegible',system-ui,sans-serif;color:var(--dark);background:white}
 .field:focus{outline:3px solid #c27c0e;outline-offset:1px;border-color:#b9b2a3}
 .examples{display:flex;gap:8px;flex-wrap:wrap}.examples .btn{padding:9px 13px;font-size:13px}
-@media(max-width:1050px){.shell{grid-template-columns:minmax(0,1fr)}.sidebar{height:auto;position:static;flex-direction:row;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 18px}.brand{padding:0}.modeswitch{margin:0}.userbox{margin:0}.nav{display:flex;flex-wrap:wrap}.sidebarbottom{display:none}.content{padding:20px}}
+@media(max-width:1050px){#installBtn{margin:0!important;padding:9px 12px}.shell{grid-template-columns:minmax(0,1fr)}.sidebar{height:auto;position:static;flex-direction:row;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 18px}.brand{padding:0}.modeswitch{margin:0}.userbox{margin:0}.nav{display:flex;flex-wrap:wrap}.sidebarbottom{display:none}.content{padding:20px}}
 @media(max-width:750px){.header{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.rowcards{grid-template-columns:1fr}.nav button{font-size:12px;padding:10px}.nav button span{margin-right:3px}.camera{height:310px}.stage{height:300px}.achievements{grid-template-columns:repeat(3,1fr)}.unitprog{min-width:90px}}
 @media(max-width:480px){.sidebar{flex-wrap:wrap;gap:10px}.brand{font-size:21px}.lesson-grid{grid-template-columns:repeat(2,1fr)}.content{padding:15px}.hero{padding:18px}.header h1{font-size:25px}.achievements{grid-template-columns:repeat(2,1fr)}.opts{grid-template-columns:1fr}.unithead{flex-wrap:wrap}.unitprog{margin-left:0;text-align:left;width:100%}}
 .progresslist{background:white;border:1px solid var(--line);border-radius:8px;padding:6px 18px}
@@ -222,6 +230,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
     <button data-tab="textsign">Text → Sign</button>
   </nav>
   <div class="userbox"><span id="userName">Guest</span><button id="authBtn">Log in</button></div>
+  <button class="btn alt hidden" id="installBtn" style="margin:12px 4px 0">Install app</button>
   <div class="sidebarbottom"><b>A note on ASL</b><br>Handshape, movement, location and facial expression all matter in ASL. Camera checks are simple practice and can't judge how fluent you are.</div>
 </aside>
 <main class="content">
@@ -1806,6 +1815,24 @@ $('guestBtn').onclick=()=>useProfile(null);
 $('authBtn').onclick=()=>{if(currentUser){if(running)stop();currentUser=null;safeStore.setItem('signsense-session','')}showAuth('login')};
 
 drawLogos();
+
+/* ---------- installable app ---------- */
+// The service worker saves the app for offline use (it needs https or localhost).
+if('serviceWorker' in navigator&&(location.protocol==='https:'||['localhost','127.0.0.1'].includes(location.hostname)))
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+const installed=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let installPrompt=null;
+// Chrome, Edge and Android offer an install prompt; we keep it for our own button.
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;show('installBtn',!installed())});
+addEventListener('appinstalled',()=>{installPrompt=null;show('installBtn',false);toast('SignSense is installed. Open it from your home screen or apps list.')});
+// Safari on iPhone and iPad has no install prompt, so the button explains how instead.
+if(isIOS&&!installed())show('installBtn',true);
+$('installBtn').onclick=async()=>{
+  if(installPrompt){installPrompt.prompt();const {outcome}=await installPrompt.userChoice;installPrompt=null;if(outcome==='accepted')show('installBtn',false);return}
+  if(isIOS)toast('To install: tap the Share button in Safari, then “Add to Home Screen”.');
+};
+
 // Start: reopen the last profile, or ask who is signing in.
 const lastSession=safeStore.getItem('signsense-session');
 if(lastSession==='guest')useProfile(null);
