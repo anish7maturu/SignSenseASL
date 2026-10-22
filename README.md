@@ -33,6 +33,8 @@ Sign up with a username and password (no email), or continue as a guest. Each pr
 
 - **Sign → Text:** fingerspell to the webcam and the letters are typed out. Hold a letter still for about a second to add it; lower your hand to add a space; draw J and Z in the air. Buttons to add a space, delete, clear, read the text aloud, copy it, or send it to Text → Sign.
 - **Text → Sign:** type a word or short sentence and an animated hand (just a hand, not a whole person) fingerspells it letter by letter. It moves smoothly between letters, bounces for repeated letters (like the L's in HELLO), and draws J and Z in the air. Slow, normal and fast speeds, with pause and replay.
+- **Other languages:** pick one of 12 languages (Spanish, French, German, Portuguese, Italian, Vietnamese, Tagalog, Hindi, Chinese, Korean, Arabic or English). Your words are translated to English, shown on screen, and then fingerspelled. Chrome's built-in translator is used when the browser has one (the text stays on the computer); otherwise the free [MyMemory](https://mymemory.translated.net) service translates it. Accented letters are signed as plain letters (é as E).
+- **Photo to signs:** take or choose a photo of a sign, a menu or a page. [Tesseract](https://github.com/naptha/tesseract.js) reads the text inside the browser (the photo is never uploaded), and the hand signs it, after translating if needed.
 
 Both translator modes work with **fingerspelling** (the 26 letters), not whole-word ASL signs or ASL grammar.
 
@@ -68,10 +70,12 @@ In GitHub Codespaces, run the same command and open the forwarded port 8000.
 
 `tests/levels.test.js` checks the test levels: every item can be signed, answers are checked correctly (spaces and capitals ignored), each level unlocks the next, and the conversation script always reaches the end.
 
+`tests/languages.test.js` checks the language list, accented letters, reading translator answers (including errors and the daily-limit warning), and cleaning up text read from photos.
+
 `tests/accounts.test.js` checks sign-up rules, that logging in needs the right password, that capitals in a username don't matter, and that passwords themselves are never saved.
 
 ```bash
-npm test   # runs all four test files
+npm test   # runs all five test files
 ```
 
 ## Limitations
@@ -81,8 +85,10 @@ SignSenseASL is an educational prototype, not a certified ASL assessment. Finger
 ## Credits
 
 - Hand tracking: MediaPipe Hands (Google), Apache 2.0 license
-- Font: Nunito (Google Fonts)
-- AI assistance: the Translate mode (Sign → Text, Text → Sign), the profiles (log in / sign up), the test levels, the visual cleanup, and their tests were written with help from Claude, an AI assistant by Anthropic.
+- Reading text in photos: Tesseract.js, Apache 2.0 license
+- Translation: Chrome's built-in Translator API, or the MyMemory translation service
+- Font: Atkinson Hyperlegible (Braille Institute, Google Fonts)
+- AI assistance: the Translate mode (Sign → Text, Text → Sign), the profiles (log in / sign up), the test levels, other-language translation, photo reading, the visual redesign, and their tests were written with help from Claude, an AI assistant by Anthropic.
 - _Add team members and any other tools used during development here._
 
 ## License

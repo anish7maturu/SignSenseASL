@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "python3 -m http.server 8000",
-    "test": "node tests/classifier.test.js && node tests/translator.test.js && node tests/accounts.test.js && node tests/levels.test.js"
+    "test": "node tests/classifier.test.js && node tests/translator.test.js && node tests/accounts.test.js && node tests/levels.test.js && node tests/languages.test.js"
   },
   "license": "MIT"
 }
