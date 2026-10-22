@@ -70,3 +70,12 @@ check('"unlock all" opens every level',T.levelOpen(6,{},true));
 }
 
 if(fails){console.error(`FAILED (${fails})`);process.exit(1)}else console.log('ALL LEVEL TESTS PASSED');
+
+// The whole page script must parse: a typo anywhere stops the app from starting,
+// even when every block above still works on its own.
+{
+  const js=html.split('<script>')[1].split('</script>')[0];
+  let ok=true;try{new Function(js)}catch(e){ok=false;console.error(e.message)}
+  check('the whole app script parses',ok);
+  if(!ok){console.error('FAILED');process.exit(1)}
+}
