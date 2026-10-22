@@ -130,6 +130,24 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
 .modeswitch{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#f0f2fa;padding:4px;border-radius:14px;margin:0 4px 18px}
 .modeswitch button{border:0;background:transparent;border-radius:11px;padding:9px 6px;font-weight:900;color:#777d9b;font-size:13px;white-space:nowrap}
 .modeswitch button.active{background:white;color:var(--purple);box-shadow:0 2px 0 var(--line)}
+/* tests */
+.levelgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.levelcard{background:white;border:2px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.levelcard h3{margin:4px 0 0;font-size:18px}.levelcard p{margin:0;color:var(--muted);font-size:13px}
+.levelcard .btn{margin-top:auto}
+.levelnum{width:40px;height:40px;border-radius:12px;background:#f3efff;color:var(--purple);display:grid;place-items:center;font-weight:900;font-size:18px}
+.levelcard.passed .levelnum{background:#e2f9ee;color:#0e805d}.levelcard.locked{opacity:.55}
+.levelstatus{font-size:12px;color:var(--muted);margin:4px 0 10px}.levelcard.passed .levelstatus{color:#0e805d}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow:auto;background:#f7f8ff;border:2px solid var(--line);border-radius:16px;padding:12px;margin-top:14px}
+.bubble{max-width:85%;padding:10px 14px;border-radius:16px;font-size:15px;line-height:1.4;letter-spacing:.5px;word-break:break-word}
+.bubble small{display:block;font-size:11px;opacity:.75;letter-spacing:0;margin-bottom:2px}
+.bubble.bot{background:#f3efff;align-self:flex-start;border-bottom-left-radius:4px}
+.bubble.me{background:var(--purple);color:white;align-self:flex-end;border-bottom-right-radius:4px}
+.bubble.wait{color:var(--muted);font-style:italic}
+.stage.sm{height:250px}
+.resultlist{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0}
+.resultlist span{border:2px solid var(--line);border-radius:12px;padding:6px 10px;font-size:13px;background:white}
+.resultlist span.ok{border-color:#9be7cd;background:#e9fbf4;color:#0e805d}.resultlist span.no{border-color:#ffc9d0;background:#fff1f3;color:#a33447}
 /* accounts */
 .auth{position:fixed;inset:0;background:var(--bg);z-index:20;display:grid;place-items:center;padding:16px;overflow:auto}
 .authcard{width:min(420px,100%);background:white;border:2px solid var(--line);border-radius:22px;padding:28px}
@@ -158,7 +176,7 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
 .field{width:100%;border:2px solid var(--line);border-radius:13px;padding:12px 14px;font:800 17px Nunito,system-ui,sans-serif;color:var(--dark);background:white}
 .field:focus{outline:3px solid #a79aff;outline-offset:1px;border-color:#cbbcff}
 .examples{display:flex;gap:8px;flex-wrap:wrap}.examples .btn{padding:9px 13px;font-size:13px}
-@media(max-width:1050px){.shell{grid-template-columns:1fr}.sidebar{height:auto;position:static;flex-direction:row;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 18px}.brand{padding:0}.modeswitch{margin:0}.userbox{margin:0}.nav{display:flex}.sidebarbottom{display:none}.content{padding:20px}}
+@media(max-width:1050px){.shell{grid-template-columns:minmax(0,1fr)}.sidebar{height:auto;position:static;flex-direction:row;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 18px}.brand{padding:0}.modeswitch{margin:0}.userbox{margin:0}.nav{display:flex;flex-wrap:wrap}.sidebarbottom{display:none}.content{padding:20px}}
 @media(max-width:750px){.header{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.rowcards{grid-template-columns:1fr}.nav button{font-size:12px;padding:10px}.nav button span{margin-right:3px}.camera{height:310px}.stage{height:300px}.achievements{grid-template-columns:repeat(3,1fr)}.unitprog{min-width:90px}}
 @media(max-width:480px){.sidebar{flex-wrap:wrap;gap:10px}.brand{font-size:21px}.lesson-grid{grid-template-columns:repeat(2,1fr)}.content{padding:15px}.hero{padding:18px}.header h1{font-size:25px}.achievements{grid-template-columns:repeat(2,1fr)}.opts{grid-template-columns:1fr}.unithead{flex-wrap:wrap}.unitprog{margin-left:0;text-align:left;width:100%}}
 </style>
@@ -175,6 +193,7 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
     <button data-tab="learn" class="active"><span>🗺️</span>Learn</button>
     <button data-tab="practice"><span>📷</span>Practice</button>
     <button data-tab="quiz"><span>🧠</span>Quiz</button>
+    <button data-tab="tests"><span>🎓</span>Tests</button>
     <button data-tab="progress"><span>🏆</span>Progress</button>
   </nav>
   <nav class="nav hidden" data-modenav="translate" aria-label="Translator">
@@ -264,6 +283,57 @@ button:focus-visible{outline:3px solid #a79aff;outline-offset:3px}
     <p style="color:var(--muted);font-size:13px;margin:16px 0 6px">Hand drawing skin tone</p><div class="tones" id="tonePicker"></div>
     <div class="actions"><button class="btn alt" id="unlockBtn">🔓 Unlock all units</button><button class="btn ghost" id="resetBtn">Reset progress</button></div>
   </section>
+</div>
+
+<!-- ================= TESTS ================= -->
+<div id="testsView" class="hidden">
+  <div id="xLevels" class="levelgrid"></div>
+  <div id="xRun" class="hidden">
+    <div class="grid">
+      <section class="panel">
+        <div class="panelhead"><h3 id="xLeftTitle">Camera</h3><span class="pill" id="xCamTag">● CAMERA OFF</span></div>
+        <div class="stage hidden" id="xStage"></div>
+        <div class="actions hidden" id="xStageBtns"><button class="btn alt" id="xReplay">Replay</button>
+          <label class="toggle" for="xSpeed">Speed <select id="xSpeed" class="field" style="width:auto;padding:7px 10px;font-size:14px"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></label></div>
+        <div id="xCamWrap">
+          <div class="camera" style="margin-top:12px">
+            <video id="xVideo" autoplay muted playsinline></video><canvas id="xCanvas"></canvas>
+            <div id="xEmpty" class="placeholder"><div class="emoji">🖐️</div><b>Camera needed</b>Turn on your camera to sign your answers.</div>
+            <div class="camstatus" id="xOverlay">● CHECKING LIVE</div>
+          </div>
+          <div class="actions"><button class="btn full" id="xStartBtn">Turn on camera</button><button class="btn alt" id="xStopBtn" disabled>Stop</button></div>
+        </div>
+        <div id="xFeedback" class="feedback" role="status" aria-live="polite"></div>
+      </section>
+      <section class="panel">
+        <div class="panelhead"><h3 id="xTitle">Level 1</h3><span class="pill" id="xScore">0 correct</span></div>
+        <div class="quizbar" id="xBar"></div>
+        <div class="target" id="xPrompt" style="margin-top:14px">
+          <p id="xAsk" style="margin:0 auto 6px"></p>
+          <div class="letter word" id="xTarget"></div>
+          <div class="wordboxes" id="xBoxes"></div>
+          <div class="handbig hidden" id="xHintPic" style="margin-top:10px"></div>
+        </div>
+        <div id="xChat" class="chat hidden" aria-live="polite"></div>
+        <div class="outbox hidden" id="xAnswer" style="margin-top:12px;min-height:64px;font-size:24px" aria-label="Your answer"></div>
+        <div class="guess" id="xGuessBox">
+          <div class="handicon" id="xGuessPic"></div>
+          <div><div class="small" id="xGuessLabel">Camera off</div><div class="guessletter" id="xGuess">—</div></div>
+          <div class="guessbar"><div class="track"><div class="fill" id="xHold"></div></div></div>
+        </div>
+        <div id="xTypeRow" class="hidden" style="margin-top:12px"><label for="xInput" class="fieldlabel" id="xInputLabel">Type what the hand spelled</label><input id="xInput" class="field" maxlength="60" autocomplete="off"></div>
+        <div class="actions">
+          <button class="btn full" id="xCheck">Check</button>
+          <button class="btn alt" id="xSpace">␣ Space</button><button class="btn alt" id="xDel">⌫ Delete</button>
+          <button class="btn alt" id="xHint">Show hint</button>
+          <button class="btn alt" id="xMark" title="T, N and M are hard for webcams to see">The camera can't see this letter</button>
+          <button class="btn ghost" id="xSkip">Skip</button>
+        </div>
+        <div class="actions"><button class="btn ghost full" id="xTypeToggle">Type my answer instead</button><button class="btn ghost full" id="xQuit">Leave test</button></div>
+      </section>
+    </div>
+  </div>
+  <div id="xResult" class="panel hidden"></div>
 </div>
 
 <!-- ================= TRANSLATE: SIGN → TEXT ================= -->
@@ -640,6 +710,7 @@ function createTyper({holdMs=800,graceMs=200,releaseMs=300,gapMs=1500}={}){
   return{step,
     space(){if(text&&!text.endsWith(' '))text+=' '},
     backspace(){text=text.slice(0,-1)},
+    add(ch){text+=ch},
     clear(){text='';cand=null;locked=null},
     get text(){return text}};
 }
@@ -690,6 +761,59 @@ function motionOffset(ch,u){
   return[0,0];
 }
 /* ===================== TRANSLATOR-END ===================== */
+
+/* ===================== TESTS-START =====================
+   The six test levels and their scoring (tested in tests/levels.test.js).
+   Everything is fingerspelling: the recognizer knows the 26 letters, not
+   whole-word signs. kind: 'sign' = sign it to the camera, 'read' = watch
+   the hand and type what it spelled, 'chat' = a scripted conversation. */
+const TEST_LEVELS=[
+  {id:1,title:'Alphabet',sub:'Sign 8 letters',kind:'sign',count:8,pass:6,
+    pool:'ABCDEFGHIJKLOPQRSUVWXYZ'.split('')}, // T, N and M are left out: webcams often can't see the tucked thumb
+  {id:2,title:'Basic words',sub:'Fingerspell 5 short words',kind:'sign',count:5,pass:4,
+    pool:['CAT','DOG','MOM','DAD','SUN','HAT','BUS','RED','BIG','YES','CUP','FOX','BYE','PIG','BED','HI']},
+  {id:3,title:'Harder words',sub:'Fingerspell 5 longer words',kind:'sign',count:5,pass:4,
+    pool:['FRIEND','SCHOOL','PLEASE','FAMILY','WATER','HAPPY','ORANGE','PURPLE','GARDEN','PENCIL','MONKEY','WINTER','BROTHER','SISTER','PIZZA']},
+  {id:4,title:'Phrases',sub:'Read 5 phrases the hand spells',kind:'read',count:5,pass:4,
+    pool:['THANK YOU','GOOD MORNING','SEE YOU LATER','HOW ARE YOU','NICE TO MEET YOU','GOOD NIGHT','I AM FINE','LETS GO','WELCOME HOME','HAPPY BIRTHDAY']},
+  {id:5,title:'Sentences',sub:'Fingerspell 3 short sentences',kind:'sign',count:3,pass:2,
+    pool:['I AM HAPPY','MY DOG IS BIG','I LIKE ASL','THE SUN IS HOT','I CAN SIGN','WE ARE FRIENDS','SEE YOU SOON']},
+  {id:6,title:'Conversation',sub:'Answer questions from the signing hand',kind:'chat',count:0,pass:4}
+];
+const onlyLetters=s=>String(s||'').toUpperCase().replace(/[^A-Z]/g,'');
+// Pick `count` different items from a level's pool. `rand` returns 0–1.
+function pickItems(level,rand=Math.random){
+  const a=[...(level.pool||[])];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+  return a.slice(0,level.count);
+}
+// While fingerspelling `target`, is what has been signed so far right?
+// Spaces don't matter (lowering your hand between words is optional).
+function signProgress(target,typed){
+  const want=onlyLetters(target),got=onlyLetters(typed);
+  if(got===want)return{status:'done'};
+  if(want.startsWith(got))return{status:'ok',expected:want[got.length]};
+  return{status:'wrong',expected:want[got.length-1]};
+}
+// Reading test: same letters in the same order, ignoring spaces and punctuation.
+const readCorrect=(answer,target)=>onlyLetters(answer)===onlyLetters(target)&&onlyLetters(target)!=='';
+const levelPassed=(level,correct)=>correct>=level.pass;
+const levelOpen=(id,tests,unlockAll)=>id===1||!!unlockAll||!!tests?.[id-1]?.passed;
+// The conversation: each answer moves the script on. Replies use the
+// first word of the answer (a name, a colour, a pet).
+const isYes=a=>/^(YES|YEAH|YEP|YUP|YA|Y|SURE)$/.test(a),isNo=a=>/^(NO|NOPE|NAH|N)$/.test(a);
+function convoNext(step,answer){
+  const w=String(answer||'').toUpperCase().replace(/[^A-Z ]/g,' ').trim().split(/\s+/)[0]||'';
+  switch(step){
+    case 0:return{say:'HI WHAT IS YOUR NAME',step:1};
+    case 1:return{say:`NICE TO MEET YOU ${w} DO YOU LIKE ASL`,step:2};
+    case 2:return{say:`${isYes(w)?'ME TOO':isNo(w)?'IT GETS EASIER':'OK'} FAVORITE COLOR`,step:3};
+    case 3:return{say:`${w} IS COOL DO YOU HAVE A PET`,step:4};
+    case 4:return isYes(w)?{say:'WHAT KIND',step:5}:{say:'OK BYE SEE YOU SOON',step:6,done:true};
+    default:return{say:`I LOVE ${w} BYE SEE YOU SOON`,step:6,done:true};
+  }
+}
+/* ===================== TESTS-END ===================== */
 
 /* ===================== ACCOUNTS-START =====================
    Profiles saved in this browser (tested in tests/accounts.test.js).
@@ -747,7 +871,7 @@ let KEY=KEY_BASE;
 const arr=v=>Array.isArray(v)?v:[];
 function loadState(key){
   let saved={};try{saved=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
-  const state={done:arr(saved.done).filter(x=>VALID.has(x)),self:arr(saved.self).filter(x=>VALID.has(x)),xp:Number(saved.xp)||0,streak:Number(saved.streak)||0,lastDay:saved.lastDay||'',dailyDay:saved.dailyDay||dateKey(),dailyCount:Number(saved.dailyCount)||0,quizToday:Number(saved.quizToday)||0,hearts:saved.hearts==null?5:Number(saved.hearts),heartsDay:saved.heartsDay||dateKey(),perfectQuiz:!!saved.perfectQuiz,unlockAll:!!saved.unlockAll,tone:Number.isInteger(saved.tone)?saved.tone:1};
+  const state={done:arr(saved.done).filter(x=>VALID.has(x)),self:arr(saved.self).filter(x=>VALID.has(x)),xp:Number(saved.xp)||0,streak:Number(saved.streak)||0,lastDay:saved.lastDay||'',dailyDay:saved.dailyDay||dateKey(),dailyCount:Number(saved.dailyCount)||0,quizToday:Number(saved.quizToday)||0,hearts:saved.hearts==null?5:Number(saved.hearts),heartsDay:saved.heartsDay||dateKey(),perfectQuiz:!!saved.perfectQuiz,unlockAll:!!saved.unlockAll,tests:saved.tests&&typeof saved.tests==='object'&&!Array.isArray(saved.tests)?saved.tests:{},tone:Number.isInteger(saved.tone)?saved.tone:1};
   if(key===KEY_BASE)try{const legacy=JSON.parse(localStorage.getItem('signsense-done')||'[]');if(Array.isArray(legacy)){state.done=[...new Set([...state.done,...legacy])].filter(x=>VALID.has(x));state.xp=Math.max(state.xp,Number(localStorage.getItem('signsense-xp'))||0)}}catch(e){}
   if(state.dailyDay!==dateKey()){state.dailyDay=dateKey();state.dailyCount=0;state.quizToday=0}
   if(state.heartsDay!==dateKey()){state.heartsDay=dateKey();state.hearts=5}
@@ -838,13 +962,15 @@ function nextLessonIndex(){const d=doneSet();const i=LESSONS.findIndex((l,i)=>le
 const label=l=>l.type==='word'?l.word:l.id;
 
 /* ---------- navigation ---------- */
-const TITLES={learn:['Learn','Pick up where you left off, or choose any open lesson.'],practice:['Practice','Hold your hand up to the camera and copy the shape on the right.'],quiz:['Quiz','Six questions, no camera needed. A wrong answer costs a heart.'],progress:['Progress','Your letters, streak and badges so far.'],signtext:['Sign to text','Fingerspell one letter at a time. Drop your hand for a second to add a space.'],textsign:['Text to sign','Type a word and the hand spells it out, letter by letter.']};
+const TITLES={tests:['Tests','Six levels, from single letters to a short conversation. Pass one to unlock the next.'],learn:['Learn','Pick up where you left off, or choose any open lesson.'],practice:['Practice','Hold your hand up to the camera and copy the shape on the right.'],quiz:['Quiz','Six questions, no camera needed. A wrong answer costs a heart.'],progress:['Progress','Your letters, streak and badges so far.'],signtext:['Sign to text','Fingerspell one letter at a time. Drop your hand for a second to add a space.'],textsign:['Text to sign','Type a word and the hand spells it out, letter by letter.']};
 // Two modes: Learn (the lessons) and Translate (the translator tools).
-const MODE_OF={learn:'learn',practice:'learn',quiz:'learn',progress:'learn',signtext:'translate',textsign:'translate'};
+const MODE_OF={learn:'learn',practice:'learn',quiz:'learn',tests:'learn',progress:'learn',signtext:'translate',textsign:'translate'};
 const lastTab={learn:'learn',translate:'signtext'};
 function setTab(t){
   // Turn the camera off when leaving the screen that is using it.
-  if(running&&((cam===CAMS.signtext&&t!=='signtext')||(cam===CAMS.practice&&MODE_OF[t]!=='learn')))stop();
+  // (Practice's camera may stay on while you look at the other Learn pages.)
+  if(running&&cam&&t!==cam.tab&&!(cam===CAMS.practice&&['learn','quiz','progress'].includes(t)))stop();
+  if(t!=='tests')xPlayer.pause();
   if(t!=='textsign')pausePlayer();
   tab=t;const mode=MODE_OF[t];lastTab[mode]=t;
   Object.keys(MODE_OF).forEach(n=>{$(n+'View').classList.toggle('hidden',n!==t);document.querySelector(`[data-tab="${n}"]`).classList.toggle('active',n===t)});
@@ -853,7 +979,8 @@ function setTab(t){
   $('pageTitle').textContent=TITLES[t][0];$('pageSub').textContent=TITLES[t][1];
   if(t==='quiz'&&!quiz)renderQuizStart();
   if(t==='signtext')refreshOut();
-  if(t==='textsign')player.tl.length?drawFrame(player.elapsed):drawRest();
+  if(t==='textsign')player.redraw();
+  if(t==='tests'){renderTests();xPlayer.resume()}
   render();window.scrollTo({top:0,behavior:'smooth'})
 }
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
@@ -916,7 +1043,7 @@ function render(){
   $('alphaGrid').innerHTML=[...ALL_LETTERS].sort().map(c=>{const i=LESSONS.findIndex(l=>l.id===c);return `<button data-alpha="${i}" class="${d.has(c)?(selfS.has(c)?'self':'done'):''}" aria-label="Letter ${c}">${c}</button>`}).join('');
   document.querySelectorAll('[data-alpha]').forEach(b=>b.onclick=()=>{if(choose(+b.dataset.alpha))setTab('practice')});
   const motionDone=d.has('J')&&d.has('Z');
-  const awards=[['🌱','First step',state.done.length>=1],['🔥','On a roll',state.streak>=2],['⭐','Triple practice',state.dailyCount>=3],['🖐️','Unit 1 complete',unit1>=5],['🔤','Half the alphabet',lettersDone>=13],['🏆','Alphabet master',lettersDone>=26],['🌀','Motion master',motionDone],['💬','First word',wordsDone>=1],['📚','Word collector',wordsDone>=WORDS.length],['🧠','Perfect quiz',state.perfectQuiz],['⚡','100 XP',state.xp>=100],['💜','500 XP',state.xp>=500]];
+  const awards=[['🌱','First step',state.done.length>=1],['🔥','On a roll',state.streak>=2],['⭐','Triple practice',state.dailyCount>=3],['🖐️','Unit 1 complete',unit1>=5],['🔤','Half the alphabet',lettersDone>=13],['🏆','Alphabet master',lettersDone>=26],['🌀','Motion master',motionDone],['💬','First word',wordsDone>=1],['📚','Word collector',wordsDone>=WORDS.length],['🧠','Perfect quiz',state.perfectQuiz],['⚡','100 XP',state.xp>=100],['💜','500 XP',state.xp>=500],['🗣️','Conversation partner',!!state.tests?.[6]?.passed],['🎓','Every test passed',TEST_LEVELS.every(l=>state.tests?.[l.id]?.passed)]];
   $('achievements').innerHTML=awards.map(([e,n,u])=>`<div class="award ${u?'':'locked'}"><div class="emoji">${e}</div><b>${n}</b><span>${u?'Unlocked!':'Locked'}</span></div>`).join('');
   $('tonePicker').innerHTML=SKIN_TONES.map(([c,n],i)=>`<button class="tone ${state.tone===i?'on':''}" data-tone="${i}" style="background:${c}" aria-label="${n} skin tone" aria-pressed="${state.tone===i}"></button>`).join('');
   document.querySelectorAll('[data-tone]').forEach(b=>b.onclick=()=>{state.tone=+b.dataset.tone;persist();render()});
@@ -1020,61 +1147,79 @@ function practiceResults(results){
   if(completedLatch)return;
   LESSONS[index].type==='word'?wordStep(f,now):letterStep(f,lm,now);
 }
+/* ---------- reading fingerspelling from the camera ---------- */
+// A sign reader turns camera frames into typed letters. The translator and
+// the tests each have their own reader (their own text and J/Z trails).
+function createSignReader(){
+  const typer=createTyper();let trJ=[],trZ=[],lastJ=0,lastZ=0,wrist=[];
+  return{typer,
+    trails:()=>[trJ,trZ],
+    reset(){trJ=[];trZ=[];wrist=[]},
+    frame(lm,now,autoSpace){
+      if(!lm){trJ=[];trZ=[];wrist=[];return{r:typer.step({t:now,hand:false,autoSpace}),det:null}}
+      const f=analyze(lm);
+      wrist.push({t:now,x:f.p[0].x/f.palm,y:f.p[0].y/f.palm});wrist=wrist.filter(q=>now-q.t<400);
+      // J and Z: follow the fingertip while their starting shape is held (same as Practice)
+      if(CHECKS.J(f)){lastJ=now;trJ.push({t:now,x:f.p[20].x/f.palm,y:f.p[20].y/f.palm,rx:lm[20].x,ry:lm[20].y})}else if(now-lastJ>450)trJ=[];
+      if(CHECKS.Z(f)){lastZ=now;trZ.push({t:now,x:f.p[8].x/f.palm,y:f.p[8].y/f.palm,rx:lm[8].x,ry:lm[8].y})}else if(now-lastZ>450)trZ=[];
+      trJ=trJ.filter(q=>now-q.t<2200);trZ=trZ.filter(q=>now-q.t<2200);
+      let motion=null;
+      if(evalMotion('J',trJ).done)motion='J';else if(evalMotion('Z',trZ).done)motion='Z';
+      if(motion){trJ=[];trZ=[]}
+      // A fingertip that is busy drawing J or Z means "moving", so I or D isn't typed by mistake
+      const drawing=[trJ,trZ].some(tr=>pathLen(tr.filter(q=>now-q.t<600))>0.3);
+      const still=!drawing&&isStill(wrist),det=detect(f);
+      return{r:typer.step({t:now,hand:true,letter:det,still,motion,autoSpace}),det};
+    }};
+}
+// The "seeing: X" box with its hold bar. `p` is the id prefix (t = translator, x = tests).
+const shownGuessFor={};
+function showGuess(r,det,label,p='t'){
+  const c=r?.cand||(det&&det===r?.locked?det:null);
+  if(c!==shownGuessFor[p]){shownGuessFor[p]=c;$(p+'GuessPic').innerHTML=c?handSVG(c):'';$(p+'Guess').textContent=c||'—'}
+  $(p+'GuessLabel').textContent=label;
+  $(p+'Hold').style.width=(r?.cand?r.progress*100:c?100:0)+'%';$(p+'Hold').classList.toggle('done',!r?.cand&&!!c);
+}
+// Standard label + feedback for a frame (returns [label, message, type]).
+function readerStatus(out,typer,autoSpace){
+  const {r,det}=out;
+  if(out.noHand)return['No hand',r.spaced?'Space added.':typer.text&&autoSpace&&!typer.text.endsWith(' ')?'Hand down: a space will be added in a moment.':'Show one hand to the camera with good lighting.',r.spaced?'good':''];
+  if(r.committed)return['Added ✓',`Added “${r.committed}”.`,'good'];
+  if(r.cand)return['Hold still…',`Seeing ${r.cand} — hold it…`,'good'];
+  if(det&&det===r.locked)return['Added ✓','Got it! Change shape, or relax your hand to repeat the letter.',''];
+  return['Looking…',!det?'I see your hand, but not a letter shape yet.':'Hold your hand still to add the letter.','warn'];
+}
+
 /* ---------- translator: Sign → Text ---------- */
-const typer=createTyper();
-let trJ=[],trZ=[],lastJ=0,lastZ=0,wristHist=[],shownGuess,shownText=null;
+const reader=createSignReader(),typer=reader.typer;
+let shownText=null;
 function tFeedback(msg,type){const el=$('tFeedback'),cls='feedback '+(type||'');if(el.textContent===msg&&el.className===cls)return;el.textContent=msg;el.className=cls}
 function refreshOut(){
   const txt=typer.text;if(txt===shownText)return;shownText=txt;
   $('tOut').innerHTML=(txt?esc(txt):'<span class="empty">Your translation appears here.</span>')+'<span class="caret"></span>';
   const n=txt.replace(/\s/g,'').length;$('tCount').textContent=n+(n===1?' letter':' letters');
 }
-function showGuess(r,det,label){
-  const c=r?.cand||(det&&det===r?.locked?det:null);
-  if(c!==shownGuess){shownGuess=c;$('tGuessPic').innerHTML=c?handSVG(c):'';$('tGuess').textContent=c||'—'}
-  $('tGuessLabel').textContent=label;
-  $('tHold').style.width=(r?.cand?r.progress*100:c?100:0)+'%';$('tHold').classList.toggle('done',!r?.cand&&!!c);
-}
-function resetTranslator(){trJ=[];trZ=[];wristHist=[];showGuess(null,null,'Camera off')}
+function resetTranslator(){reader.reset();showGuess(null,null,'Camera off')}
 function translateResults(results){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   if($('tLandmarkToggle').checked)for(const p of(results.multiHandLandmarks||[]))drawHand(p);
-  drawTrail(trJ);drawTrail(trZ);
-  const lm=results.multiHandLandmarks?.[0],now=performance.now(),autoSpace=$('tAutoSpace').checked;
-  if(!lm){
-    trJ=[];trZ=[];wristHist=[];
-    const r=typer.step({t:now,hand:false,autoSpace});
-    refreshOut();showGuess(r,null,'No hand');
-    tFeedback(r.spaced?'Space added.':typer.text&&autoSpace&&!typer.text.endsWith(' ')?'Hand down: a space will be added in a moment.':'Show one hand to the camera with good lighting.',r.spaced?'good':'');
-    return;
-  }
-  const f=analyze(lm);
-  wristHist.push({t:now,x:f.p[0].x/f.palm,y:f.p[0].y/f.palm});wristHist=wristHist.filter(q=>now-q.t<400);
-  // J and Z: follow the fingertip while their starting shape is held (same as Practice)
-  if(CHECKS.J(f)){lastJ=now;trJ.push({t:now,x:f.p[20].x/f.palm,y:f.p[20].y/f.palm,rx:lm[20].x,ry:lm[20].y})}else if(now-lastJ>450)trJ=[];
-  if(CHECKS.Z(f)){lastZ=now;trZ.push({t:now,x:f.p[8].x/f.palm,y:f.p[8].y/f.palm,rx:lm[8].x,ry:lm[8].y})}else if(now-lastZ>450)trZ=[];
-  trJ=trJ.filter(q=>now-q.t<2200);trZ=trZ.filter(q=>now-q.t<2200);
-  let motion=null;
-  if(evalMotion('J',trJ).done)motion='J';else if(evalMotion('Z',trZ).done)motion='Z';
-  if(motion){trJ=[];trZ=[]}
-  // A fingertip that is busy drawing J or Z means "moving", so I or D isn't typed by mistake
-  const drawing=[trJ,trZ].some(tr=>pathLen(tr.filter(q=>now-q.t<600))>0.3);
-  const still=!drawing&&isStill(wristHist),det=detect(f);
-  const r=typer.step({t:now,hand:true,letter:det,still,motion,autoSpace});
+  reader.trails().forEach(tr=>drawTrail(tr));
+  const lm=results.multiHandLandmarks?.[0],autoSpace=$('tAutoSpace').checked;
+  const out=reader.frame(lm,performance.now(),autoSpace);out.noHand=!lm;
   refreshOut();
-  if(r.committed){ping();tFeedback(`Added “${r.committed}”. Sign the next letter.`,'good');showGuess(r,det,'Added ✓');return}
-  if(r.cand){showGuess(r,det,'Hold still…');tFeedback(`Seeing ${r.cand} — hold it…`,'good');return}
-  if(det&&det===r.locked){showGuess(r,det,'Added ✓');tFeedback('Got it! Change shape, or relax your hand to repeat the letter.','');return}
-  showGuess(r,det,'Looking…');
-  tFeedback(!det?'I see your hand, but not a letter shape yet.':'Hold your hand still to add the letter.','warn');
+  if(out.r.committed)ping();
+  const [label,msg,type]=readerStatus(out,typer,autoSpace);
+  showGuess(out.r,out.det,label);tFeedback(out.r.committed?msg+' Sign the next letter.':msg,type);
 }
 
 /* ---------- camera (shared by Practice and Sign → Text) ---------- */
 const CAMS={
-  practice:{video:'video',canvas:'canvas',empty:'empty',overlay:'overlay',tag:'cameraTag',startBtn:'startBtn',stopBtn:'stopBtn',
+  practice:{tab:'practice',video:'video',canvas:'canvas',empty:'empty',overlay:'overlay',tag:'cameraTag',startBtn:'startBtn',stopBtn:'stopBtn',
     onResults:practiceResults,msg:(m,t)=>feedback(m,t),onStop:()=>{trail=[];resetHold();renderChips(null)}},
-  signtext:{video:'tVideo',canvas:'tCanvas',empty:'tEmpty',overlay:'tOverlay',tag:'tCameraTag',startBtn:'tStartBtn',stopBtn:'tStopBtn',
-    onResults:translateResults,msg:(m,t)=>tFeedback(m,t),onStop:resetTranslator}
+  signtext:{tab:'signtext',video:'tVideo',canvas:'tCanvas',empty:'tEmpty',overlay:'tOverlay',tag:'tCameraTag',startBtn:'tStartBtn',stopBtn:'tStopBtn',
+    onResults:translateResults,msg:(m,t)=>tFeedback(m,t),onStop:resetTranslator},
+  tests:{tab:'tests',video:'xVideo',canvas:'xCanvas',empty:'xEmpty',overlay:'xOverlay',tag:'xCamTag',startBtn:'xStartBtn',stopBtn:'xStopBtn',
+    onResults:testResults,msg:(m,t)=>xFeedback(m,t),onStop:()=>{xReader.reset();showGuess(null,null,'Camera off','x')}}
 };
 async function loop(){if(!running)return;if(video.readyState>=2&&!busy&&performance.now()-lastFrame>65){busy=true;lastFrame=performance.now();try{await hands.send({image:video})}catch(e){cam?.msg('Hand-tracking error: '+e.message,'warn')}finally{busy=false}}if(running)requestAnimationFrame(loop)}
 async function start(name){
@@ -1120,7 +1265,6 @@ function centerOf(L){
 }
 const at=(c,o=[0,0])=>[o[0]-c[0],o[1]-c[1]]; // motion offset minus the letter's centre
 const REST=()=>({pose:HAND_POSES.B,view:viewOf('B'),off:[0,0],c:centerOf('B')});
-let player={tokens:[],tl:[],total:0,elapsed:0,playing:false,last:0,raf:0,nowI:null};
 function buildTimeline(tokens){
   const tl=[];let t=0,prev=REST();
   const push=s=>{s.t0=t;tl.push(s);t+=s.dur};
@@ -1135,14 +1279,6 @@ function buildTimeline(tokens){
   });
   push({kind:'move',i:-1,dur:450,from:prev,to:REST(),ch:null});
   return{tl,total:t};
-}
-function frameAt(e){
-  const tl=player.tl,s=tl.find(x=>e<x.t0+x.dur)||tl[tl.length-1];
-  const u=Math.max(0,Math.min(1,(e-s.t0)/s.dur)),k=ease(u);
-  if(s.kind==='move')return{pose:lerpPose(s.from.pose,s.to.pose,k),view:lerpView(s.from.view,s.to.view,k),off:[s.from.off[0]*(1-k),s.from.off[1]*(1-k)],c:[lerp(s.from.c[0],s.to.c[0],k),lerp(s.from.c[1],s.to.c[1],k)],seg:s,letter:null};
-  if(s.kind==='bounce')return{...s.at,off:[.22*Math.sin(Math.PI*u),0],seg:s,letter:null};
-  if(s.kind==='motion')return{...s.at,off:motionOffset(s.ch,k),seg:s,letter:s.ch,trailU:k};
-  return{...s.at,seg:s,letter:s.ch,trailU:s.trail?1:0};
 }
 // One fixed frame for every pose, so the hand doesn't jump around while it moves.
 let stageVB=null;
@@ -1166,46 +1302,235 @@ function stageSVG(pose,view,off,letter,trail){
   if(trail&&trail.length>1)tr=`<path d="M${trail.map(p=>p[0].toFixed(3)+' '+p[1].toFixed(3)).join('L')}" fill="none" stroke="#f4b544" stroke-width=".07" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=".12 .09"/>`;
   return `<svg viewBox="${getStageVB()}" role="img" aria-label="Signing hand" xmlns="http://www.w3.org/2000/svg">${handShapes(handScreen(pose,view,off),letter,toneHex())}${tr}</svg>`;
 }
-function drawRest(){const r=REST();$('tsStage').innerHTML=stageSVG(r.pose,r.view,at(r.c),null,null)}
-function drawFrame(e){
-  const fr=frameAt(e),s=fr.seg;let trail=null;
-  if(s.ch&&LETTERS[s.ch]?.motion&&fr.trailU){
-    const tip=handScreen(s.at.pose,s.at.view,at(s.at.c))[s.ch==='J'?20:8];trail=[];
-    for(let v=0;v<=fr.trailU+1e-9;v+=.04){const o=motionOffset(s.ch,v);trail.push([tip[0]+o[0],tip[1]+o[1]])}
+// A signing hand drawn into one stage element. Each screen that shows a
+// signing hand (Text → Sign, the tests) gets its own player.
+function createSignPlayer({stage,speed=()=>'normal',onIndex=()=>{},onChange=()=>{}}){
+  const P={tokens:[],tl:[],total:0,elapsed:0,playing:false,last:0,raf:0,nowI:null,onDone:null};
+  function frameAt(e){
+    const tl=P.tl,s=tl.find(x=>e<x.t0+x.dur)||tl[tl.length-1];
+    const u=Math.max(0,Math.min(1,(e-s.t0)/s.dur)),k=ease(u);
+    if(s.kind==='move')return{pose:lerpPose(s.from.pose,s.to.pose,k),view:lerpView(s.from.view,s.to.view,k),off:[s.from.off[0]*(1-k),s.from.off[1]*(1-k)],c:[lerp(s.from.c[0],s.to.c[0],k),lerp(s.from.c[1],s.to.c[1],k)],seg:s,letter:null};
+    if(s.kind==='bounce')return{...s.at,off:[.22*Math.sin(Math.PI*u),0],seg:s,letter:null};
+    if(s.kind==='motion')return{...s.at,off:motionOffset(s.ch,k),seg:s,letter:s.ch,trailU:k};
+    return{...s.at,seg:s,letter:s.ch,trailU:s.trail?1:0};
   }
-  $('tsStage').innerHTML=stageSVG(fr.pose,fr.view,at(fr.c,fr.off),fr.letter,trail);
-  setNow(e>=player.total?-1:s.i);
+  function rest(){const r=REST();$(stage).innerHTML=stageSVG(r.pose,r.view,at(r.c),null,null)}
+  function draw(e){
+    const fr=frameAt(e),s=fr.seg;let trail=null;
+    if(s.ch&&LETTERS[s.ch]?.motion&&fr.trailU){
+      const tip=handScreen(s.at.pose,s.at.view,at(s.at.c))[s.ch==='J'?20:8];trail=[];
+      for(let v=0;v<=fr.trailU+1e-9;v+=.04){const o=motionOffset(s.ch,v);trail.push([tip[0]+o[0],tip[1]+o[1]])}
+    }
+    $(stage).innerHTML=stageSVG(fr.pose,fr.view,at(fr.c,fr.off),fr.letter,trail);
+    const i=e>=P.total?-1:s.i;
+    if(i!==P.nowI){P.nowI=i;onIndex(i,P.tokens)}
+  }
+  function tick(ts){
+    if(!P.playing)return;
+    if(P.last)P.elapsed+=(ts-P.last)/SIGN_SPEEDS[speed()];
+    P.last=ts;
+    if(P.elapsed>=P.total){P.elapsed=P.total;P.playing=false}
+    draw(P.elapsed);onChange();
+    if(P.playing)P.raf=requestAnimationFrame(tick);
+    else if(P.elapsed>=P.total&&P.onDone){const f=P.onDone;P.onDone=null;f()}
+  }
+  function runFrom(e){cancelAnimationFrame(P.raf);P.elapsed=e;P.playing=true;P.last=0;P.raf=requestAnimationFrame(tick);onChange()}
+  return{
+    get playing(){return P.playing},get has(){return P.tl.length>0},get done(){return P.tl.length>0&&P.elapsed>=P.total},
+    // false if the text has no letters to sign; onDone runs once when it finishes
+    play(text,onDone){const tokens=textToSigns(text);if(!tokens.some(t=>t.kind==='letter'))return false;Object.assign(P,buildTimeline(tokens),{tokens,nowI:null,onDone:onDone||null});runFrom(0);return true},
+    replay(){if(P.tl.length){P.nowI=null;runFrom(0)}},
+    resume(){if(P.tl.length&&!P.playing&&P.elapsed<P.total)runFrom(P.elapsed)},
+    pause(){if(!P.playing)return;P.playing=false;cancelAnimationFrame(P.raf);onChange()},
+    stop(){cancelAnimationFrame(P.raf);Object.assign(P,{playing:false,tl:[],tokens:[],onDone:null,nowI:null});rest();onChange()},
+    redraw(){P.tl.length?draw(P.elapsed):rest()},
+    rest
+  };
 }
-function setNow(i){
-  if(i===player.nowI)return;player.nowI=i;
-  const toks=player.tokens,end=i<0;
+
+// Text → Sign screen
+const player=createSignPlayer({stage:'tsStage',speed:()=>$('tsSpeed').value,onIndex:setNow,onChange:updatePlayUI});
+function drawRest(){player.rest()}
+function pausePlayer(){player.pause()}
+function setNow(i,toks){
+  const end=i<0;
   $('tsStrip').innerHTML=toks.map((tok,j)=>`<span class="${tok.kind} ${end||j<i?'done':''} ${j===i?'now':''}" title="${tok.kind==='skip'?'Not signed':''}">${tok.kind==='space'?'':esc(tok.ch)}</span>`).join('');
   if(end){$('tsNow').textContent='✓';$('tsNowDesc').textContent='Done! Press Replay to watch again, or try a slower speed.';return}
   const tok=toks[i];
   if(tok.kind==='space'){$('tsNow').textContent='␣';$('tsNowDesc').textContent='A short pause between words.';return}
   $('tsNow').textContent=tok.ch;$('tsNowDesc').textContent=(tok.double?'Repeated letter: a small bounce. ':'')+LETTERS[tok.ch].desc;
 }
-function tick(ts){
-  if(!player.playing)return;
-  if(player.last)player.elapsed+=(ts-player.last)/SIGN_SPEEDS[$('tsSpeed').value];
-  player.last=ts;
-  if(player.elapsed>=player.total){player.elapsed=player.total;player.playing=false}
-  drawFrame(player.elapsed);updatePlayUI();
-  if(player.playing)player.raf=requestAnimationFrame(tick);
-}
-function runFrom(elapsed){cancelAnimationFrame(player.raf);Object.assign(player,{elapsed,playing:true,last:0});player.raf=requestAnimationFrame(tick);updatePlayUI()}
 function playText(){
-  const txt=$('tsInput').value.trim(),tokens=textToSigns(txt);
-  if(!tokens.some(t=>t.kind==='letter')){$('tsNow').textContent='—';$('tsNowDesc').textContent=txt?'Only the letters A–Z can be fingerspelled. Try a word.':'Type a word first.';return}
-  const {tl,total}=buildTimeline(tokens);
-  Object.assign(player,{tokens,tl,total,nowI:null});runFrom(0);
+  const txt=$('tsInput').value.trim();
+  if(!player.play(txt)){$('tsNow').textContent='—';$('tsNowDesc').textContent=txt?'Only the letters A–Z can be fingerspelled. Try a word.':'Type a word first.'}
 }
-function pausePlayer(){if(!player.playing)return;player.playing=false;cancelAnimationFrame(player.raf);updatePlayUI()}
 function updatePlayUI(){
-  const has=player.tl.length>0,done=has&&player.elapsed>=player.total;
+  const has=player.has,done=player.done;
   $('tsPause').textContent=player.playing?'⏸ Pause':'▶ Resume';$('tsPause').disabled=!has||done;$('tsReplay').disabled=!has;
   $('tsStatus').textContent=player.playing?'Signing…':done?'Done':has?'Paused':'Ready';$('tsStatus').classList.toggle('live',player.playing);
 }
+
+/* ---------- tests ---------- */
+const xReader=createSignReader(),xTyper=xReader.typer;
+const xPlayer=createSignPlayer({stage:'xStage',speed:()=>$('xSpeed').value});
+let run=null,xView='list'; // run = the test being taken
+const show=(id,on)=>$(id).classList.toggle('hidden',!on);
+function xFeedback(msg,type){const el=$('xFeedback'),cls='feedback '+(type||'');if(el.textContent===msg&&el.className===cls)return;el.textContent=msg;el.className=cls}
+function setXView(v){xView=v;show('xLevels',v==='list');show('xRun',v==='run');show('xResult',v==='result')}
+
+function renderTests(){
+  if(xView!=='list')return;
+  $('xLevels').innerHTML=TEST_LEVELS.map(l=>{
+    const r=state.tests[l.id],open=levelOpen(l.id,state.tests,state.unlockAll),of=l.kind==='chat'?'':` / ${l.count}`;
+    const status=!open?`🔒 Pass Level ${l.id-1} to unlock`:r?.passed?`✓ Passed · best ${r.best}${of}`:r?`Best so far ${r.best}${of} · need ${l.pass}`:l.kind==='chat'?`Answer ${l.pass} questions to pass`:`Pass with ${l.pass}${of}`;
+    return `<div class="levelcard ${open?'':'locked'} ${r?.passed?'passed':''}"><div class="levelnum">${l.id}</div><h3>${esc(l.title)}</h3><p>${esc(l.sub)}</p><div class="levelstatus">${status}</div><button class="btn ${r?.passed?'alt':''}" data-level="${l.id}" ${open?'':'disabled'}>${r?.passed?'Take again':r?'Try again':'Start'}</button></div>`;
+  }).join('');
+  document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>startLevel(+b.dataset.level));
+}
+
+function startLevel(id){
+  const L=TEST_LEVELS.find(l=>l.id===id),usesCam=L.kind!=='read',stage=L.kind!=='sign',chat=L.kind==='chat';
+  run={level:L,items:pickItems(L),i:0,correct:0,results:[],waiting:false,typing:false,answers:0,step:0,chat:[],hint:false};
+  setXView('run');
+  $('xTitle').textContent=`Level ${id} · ${L.title}`;$('xScore').textContent=chat?'0 answers':'0 correct';
+  $('xLeftTitle').textContent=L.kind==='sign'?'Camera':'Signing hand';
+  show('xCamWrap',usesCam);show('xGuessBox',usesCam);show('xCamTag',usesCam);
+  show('xStage',stage);show('xStageBtns',stage);$('xStage').classList.toggle('sm',chat);
+  show('xPrompt',!chat);show('xChat',chat);show('xAnswer',chat);show('xTypeToggle',chat);
+  show('xTypeRow',L.kind==='read');$('xInputLabel').textContent=chat?'Type your answer':'Type what the hand spelled';
+  show('xCheck',L.kind!=='sign');$('xCheck').textContent=chat?'Send':'Check';
+  show('xSpace',chat||id===5);show('xDel',L.kind!=='read');show('xHint',L.kind==='sign');show('xSkip',!chat);show('xMark',false);
+  $('xTypeToggle').textContent='Type my answer instead';
+  xTyper.clear();xReader.reset();showGuess(null,null,running?'Looking…':'Camera off','x');
+  chat?startChat():setupItem();
+  if(usesCam&&!running)xFeedback(chat?'Turn on your camera so you can sign your answers.':'Turn on your camera to begin.','');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderBar(){
+  $('xBar').innerHTML=run.items.map((_,i)=>`<i class="${run.results[i]===true?'c':run.results[i]===false?'w':i===run.i?'n':''}"></i>`).join('');
+}
+const nextLetter=()=>onlyLetters(run.items[run.i])[onlyLetters(xTyper.text).length];
+function setupItem(){
+  const L=run.level,item=run.items[run.i];
+  run.waiting=false;run.hint=false;xTyper.clear();xReader.reset();$('xInput').value='';show('xHintPic',false);renderBar();
+  if(L.kind==='read'){
+    $('xAsk').textContent='Watch the hand, then type what it spelled.';$('xTarget').textContent='?';$('xBoxes').innerHTML='';
+    xPlayer.play(item);xFeedback('Watch closely. Press Replay to see it again.','');$('xInput').focus();
+    return;
+  }
+  $('xAsk').textContent=L.id===1?'Sign this letter':L.id===5?'Fingerspell this sentence. You can lower your hand between words.':'Fingerspell this word';
+  $('xTarget').textContent=item;renderBoxes();updateHelp();
+  if(running)xFeedback(`Start with ${onlyLetters(item)[0]}.`,'');
+}
+function renderBoxes(){
+  const item=run.items[run.i],got=onlyLetters(xTyper.text).length;let k=0;
+  $('xBoxes').innerHTML=run.level.id===1?'':[...item].map(c=>{if(c===' ')return'<span class="space"></span>';const j=k++;return `<span class="${j<got?'done':j===got?'now':''}">${c}</span>`}).join('');
+}
+// "Show hint" draws the next letter; T, N and M get a button for when the webcam can't see them.
+function updateHelp(){
+  const c=run?.level.kind==='sign'?nextLetter():null;
+  show('xMark',!!c&&!!LETTERS[c]?.beta);
+  if(run?.hint&&c)$('xHintPic').innerHTML=handSVG(c,'handsvg big');
+}
+function checkTyped(c){
+  const res=signProgress(run.items[run.i],xTyper.text);
+  if(res.status==='done'){renderBoxes();return itemDone(true,`Correct: ${run.items[run.i]}!`)}
+  if(res.status==='wrong'){xTyper.backspace();xFeedback(`That looked like ${c}. ${run.level.id===1?'Try':'The next letter is'} ${res.expected}.`,'warn')}
+  else{ping();xFeedback(`${c} ✓ Next: ${res.expected}.`,'good')}
+  renderBoxes();updateHelp();
+}
+function itemDone(ok,msg){
+  if(run.waiting)return;run.waiting=true;
+  run.results[run.i]=ok;if(ok)run.correct++;
+  renderBar();$('xScore').textContent=`${run.correct} correct`;
+  xFeedback(msg,ok?'good':'warn');ok?sound():buzz();
+  setTimeout(()=>{if(!run||xView!=='run')return;run.i++;run.i>=run.items.length?finishRun():setupItem()},1400);
+}
+function testResults(results){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(const p of(results.multiHandLandmarks||[]))drawHand(p);
+  xReader.trails().forEach(tr=>drawTrail(tr));
+  if(!run||run.waiting||xView!=='run'||run.level.kind==='read'||run.typing)return;
+  const lm=results.multiHandLandmarks?.[0],autoSpace=run.level.kind==='chat'||run.level.id===5;
+  const out=xReader.frame(lm,performance.now(),autoSpace);out.noHand=!lm;
+  const [label,msg,type]=readerStatus(out,xTyper,autoSpace);
+  showGuess(out.r,out.det,label,'x');
+  if(run.level.kind==='sign'){
+    if(out.r.committed)return checkTyped(out.r.committed);
+    if(out.r.spaced)renderBoxes();
+    if(!out.noHand||!$('xFeedback').classList.contains('warn'))xFeedback(msg,type);
+    return;
+  }
+  refreshAnswer();if(out.r.committed)ping();
+  xFeedback(out.r.committed?`Added “${out.r.committed}”. Press Send when your answer is done.`:msg,type);
+}
+
+// Level 6: the hand asks, you answer, the script replies.
+function startChat(){run.chat=[];run.step=0;$('xBar').innerHTML='';refreshAnswer();const r=convoNext(0,'');run.step=r.step;botSay(r.say,false)}
+function botSay(text,done){
+  const m={who:'bot',text,shown:false};run.chat.push(m);run.waiting=true;renderChat();xFeedback('Watch the hand…','');
+  const finish=()=>{
+    m.shown=true;if(!run)return;renderChat();
+    if(done){xFeedback('Conversation finished!','good');return setTimeout(()=>{if(run&&xView==='run')finishRun()},1800)}
+    run.waiting=false;xTyper.clear();xReader.reset();refreshAnswer();
+    xFeedback(running||run.typing?'Your turn: answer, then press Send.':'Your turn. Turn on your camera to sign your answer, or type it.','');
+  };
+  if(!xPlayer.play(text,finish))finish();
+}
+function sendChat(){
+  if(run.waiting)return xFeedback('Wait for the hand to finish signing.','');
+  const ans=(run.typing?$('xInput').value:xTyper.text).trim().toUpperCase();
+  if(!onlyLetters(ans))return xFeedback(run.typing?'Type an answer first.':'Sign an answer first.','warn');
+  run.chat.push({who:'me',text:ans,shown:true});run.answers++;
+  $('xScore').textContent=`${run.answers} answer${run.answers===1?'':'s'}`;
+  $('xInput').value='';xTyper.clear();refreshAnswer();ping();
+  const r=convoNext(run.step,ans);run.step=r.step;botSay(r.say,!!r.done);
+}
+function renderChat(){
+  $('xChat').innerHTML=run.chat.map(m=>`<div class="bubble ${m.who==='bot'?'bot':'me'} ${m.shown?'':'wait'}"><small>${m.who==='bot'?'SignSense':'You'}</small>${m.shown?esc(m.text):'signing… watch the hand'}</div>`).join('');
+  $('xChat').scrollTop=1e9;
+}
+function refreshAnswer(){const t=xTyper.text;$('xAnswer').innerHTML=(t?esc(t):'<span class="empty">Your answer appears here as you sign.</span>')+'<span class="caret"></span>'}
+
+function finishRun(){
+  const r=run,L=r.level,score=L.kind==='chat'?r.answers:r.correct,passed=levelPassed(L,score);
+  const prev=state.tests[L.id]||{},first=passed&&!prev.passed,gained=first?25*L.id:0;
+  state.tests[L.id]={best:Math.max(prev.best||0,score),passed:!!prev.passed||passed,tries:(prev.tries||0)+1};
+  if(gained){state.xp+=gained;bumpDaily()}
+  persist();render();
+  run=null;xPlayer.stop();if(running&&cam===CAMS.tests)stop();
+  const of=L.kind==='chat'?'':` / ${L.count}`,next=TEST_LEVELS.find(l=>l.id===L.id+1);
+  const list=L.kind==='chat'?'':`<div class="resultlist">${r.items.map((it,i)=>`<span class="${r.results[i]?'ok':'no'}">${r.results[i]?'✓':'✗'} ${esc(it)}</span>`).join('')}</div>`;
+  $('xResult').innerHTML=`<div style="text-align:center"><div style="font-size:54px">${passed?'🎉':'💪'}</div><div class="quizq">${passed?`Level ${L.id} passed!`:'Not quite yet'}</div>
+    <p style="color:var(--muted)">${L.kind==='chat'?`You answered ${score} questions.`:`${score}${of} correct. You needed ${L.pass}.`}${gained?` +${gained} XP`:''}</p>${list}
+    <div class="actions" style="justify-content:center">${passed&&next?`<button class="btn" id="xNext">Level ${next.id}: ${esc(next.title)} →</button>`:''}<button class="btn ${passed&&next?'alt':''}" id="xAgain">${passed?'Take it again':'Try again'}</button><button class="btn ghost" id="xBack">All tests</button></div></div>`;
+  setXView('result');
+  if(passed){sound();confetti()}
+  if($('xNext'))$('xNext').onclick=()=>startLevel(next.id);
+  $('xAgain').onclick=()=>startLevel(L.id);
+  $('xBack').onclick=()=>{setXView('list');renderTests()};
+}
+function quitRun(){run=null;xPlayer.stop();if(running&&cam===CAMS.tests)stop();setXView('list');renderTests()}
+
+$('xStartBtn').onclick=()=>start('tests');$('xStopBtn').onclick=stop;
+$('xReplay').onclick=()=>xPlayer.replay();
+$('xCheck').onclick=()=>{
+  if(!run)return;
+  if(run.level.kind==='chat')return sendChat();
+  if(run.waiting)return;
+  const item=run.items[run.i],ans=$('xInput').value;
+  if(!onlyLetters(ans))return xFeedback('Type what you saw first.','warn');
+  const ok=readCorrect(ans,item);
+  itemDone(ok,ok?`Correct: ${item}!`:`Not quite. The hand spelled ${item}.`);
+};
+$('xInput').onkeydown=e=>{if(e.key==='Enter')$('xCheck').click()};
+$('xSkip').onclick=()=>{if(run&&!run.waiting)itemDone(false,`Skipped. ${run.level.kind==='read'?'The hand spelled':'It was'} ${run.items[run.i]}.`)};
+$('xHint').onclick=()=>{if(!run)return;run.hint=true;show('xHintPic',true);updateHelp()};
+$('xMark').onclick=()=>{if(!run||run.waiting)return;const c=nextLetter();if(!c)return;xTyper.add(c);checkTyped(c)};
+$('xDel').onclick=()=>{if(!run)return;xTyper.backspace();run.level.kind==='sign'?(renderBoxes(),updateHelp()):refreshAnswer()};
+$('xSpace').onclick=()=>{if(!run)return;xTyper.space();run.level.kind==='sign'?renderBoxes():refreshAnswer()};
+$('xTypeToggle').onclick=()=>{if(!run)return;run.typing=!run.typing;show('xTypeRow',run.typing);show('xAnswer',!run.typing);$('xTypeToggle').textContent=run.typing?'Sign my answer instead':'Type my answer instead';if(run.typing)$('xInput').focus()};
+$('xQuit').onclick=quitRun;
 
 /* ---------- quiz (no camera) ---------- */
 let quiz=null;
@@ -1271,15 +1596,15 @@ $('tSend').onclick=()=>{const txt=typer.text.trim();if(!txt)return toast('Sign s
 // translator: Text → Sign
 $('tsPlay').onclick=playText;
 $('tsInput').onkeydown=e=>{if(e.key==='Enter')playText()};
-$('tsPause').onclick=()=>player.playing?pausePlayer():runFrom(player.elapsed);
-$('tsReplay').onclick=()=>{if(player.tl.length){player.nowI=null;runFrom(0)}};
+$('tsPause').onclick=()=>player.playing?player.pause():player.resume();
+$('tsReplay').onclick=()=>player.replay();
 document.querySelectorAll('[data-example]').forEach(b=>b.onclick=()=>{$('tsInput').value=b.dataset.example;playText()});
 $('prevBtn').onclick=()=>step(-1);$('nextBtn').onclick=()=>step(1);
 $('retryBtn').onclick=()=>{completedLatch=false;wordPos=0;trail=[];resetHold(true);render();feedback('Ready for another practice round!','')};
 $('selfBtn').onclick=()=>{completedLatch=false;wordPos=LESSONS[index].type==='word'?LESSONS[index].word.length:0;success(true)};
 $('continueBtn').onclick=()=>{if(choose(nextLessonIndex()))setTab('practice')};
 $('unlockBtn').onclick=()=>{state.unlockAll=true;persist();render();toast('🔓 All units unlocked')};
-$('resetBtn').onclick=()=>{if(!confirm('Reset all SignSense progress in this browser?'))return;state={done:[],self:[],xp:0,streak:0,lastDay:'',dailyDay:dateKey(),dailyCount:0,quizToday:0,hearts:5,heartsDay:dateKey(),perfectQuiz:false,unlockAll:false,tone:state.tone};try{localStorage.removeItem('signsense-done');localStorage.removeItem('signsense-xp')}catch(e){}sessionDone.clear();persist();choose(0);toast('Progress reset')};
+$('resetBtn').onclick=()=>{if(!confirm('Reset all SignSense progress in this browser?'))return;state={done:[],self:[],xp:0,streak:0,lastDay:'',dailyDay:dateKey(),dailyCount:0,quizToday:0,hearts:5,heartsDay:dateKey(),perfectQuiz:false,unlockAll:false,tests:{},tone:state.tone};try{localStorage.removeItem('signsense-done');localStorage.removeItem('signsense-xp')}catch(e){}sessionDone.clear();persist();choose(0);toast('Progress reset')};
 document.addEventListener('keydown',e=>{if(tab!=='practice'||e.target.matches('input,textarea'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
 window.addEventListener('pagehide',()=>stream?.getTracks().forEach(t=>t.stop()));
 /* ---------- accounts ---------- */
@@ -1295,6 +1620,7 @@ function useProfile(name){
   $('userName').textContent=name||'Guest';$('authBtn').textContent=name?'Log out':'Log in';
   $('authView').classList.add('hidden');
   persist();typer.clear();shownText=null;refreshOut();drawRest();
+  run=null;xPlayer.stop();setXView('list');
   choose(nextLessonIndex());setTab('learn');
 }
 function setAuthMode(m){

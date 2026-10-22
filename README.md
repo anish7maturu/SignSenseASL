@@ -18,6 +18,15 @@ Sign up with a username and password (no email), or continue as a guest. Each pr
 - **Live practice:** the webcam tracks 21 points on your hand and checks your handshape in real time. A finger checklist shows which fingers are right and which to fix.
 - **Movement letters:** J and Z are checked by tracing the fingertip's path through the air.
 - **Quiz:** a no-camera handshape quiz with hearts.
+- **Tests:** six levels that unlock in order. Each first pass earns XP.
+  1. **Alphabet:** sign 8 letters to the camera (pass with 6)
+  2. **Basic words:** fingerspell 5 short words like CAT and MOM (pass with 4)
+  3. **Harder words:** fingerspell 5 longer words like FRIEND and SCHOOL (pass with 4)
+  4. **Phrases:** the animated hand spells a phrase and you type what you read (pass with 4 of 5)
+  5. **Sentences:** fingerspell 3 short sentences, lowering your hand between words (pass with 2)
+  6. **Conversation:** the hand asks your name, whether you like ASL, your favorite color and about pets; you answer by fingerspelling (or typing) and it replies. The conversation is scripted, not a chatbot.
+
+  A wrong letter is taken back automatically with a hint about the right one. Because webcams often can't see the tucked thumb in T, N and M, those letters get a "the camera can't see this letter" button.
 - **Progress:** XP, daily streaks, quests, achievements and an alphabet chart. Progress is saved in the browser.
 
 ### Translate mode
@@ -57,10 +66,12 @@ In GitHub Codespaces, run the same command and open the forwarded port 8000.
 
 `tests/translator.test.js` checks the translator: when letters are typed (held long enough, typed once, repeated after relaxing, misreads ignored, moving hands ignored, spaces after a pause, J from a movement), how text is split into letters to sign, and that every pair of letters blends into a valid hand.
 
+`tests/levels.test.js` checks the test levels: every item can be signed, answers are checked correctly (spaces and capitals ignored), each level unlocks the next, and the conversation script always reaches the end.
+
 `tests/accounts.test.js` checks sign-up rules, that logging in needs the right password, that capitals in a username don't matter, and that passwords themselves are never saved.
 
 ```bash
-npm test   # runs all three test files
+npm test   # runs all four test files
 ```
 
 ## Limitations
@@ -71,7 +82,7 @@ SignSenseASL is an educational prototype, not a certified ASL assessment. Finger
 
 - Hand tracking: MediaPipe Hands (Google), Apache 2.0 license
 - Font: Nunito (Google Fonts)
-- AI assistance: the Translate mode (Sign → Text, Text → Sign), the profiles (log in / sign up), the visual cleanup, and their tests were written with help from Claude, an AI assistant by Anthropic.
+- AI assistance: the Translate mode (Sign → Text, Text → Sign), the profiles (log in / sign up), the test levels, the visual cleanup, and their tests were written with help from Claude, an AI assistant by Anthropic.
 - _Add team members and any other tools used during development here._
 
 ## License
