@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Learn and translate the ASL fingerspelling alphabet with your webcam.">
+<meta name="description" content="Translate ASL fingerspelling with your camera, turn text from any language into signs, and practice step by step.">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#faf8f3">
 <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="SignSense">
-<title>SignSense: learn and translate ASL fingerspelling</title>
+<title>SignSense: ASL fingerspelling translator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -208,6 +208,48 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
 .transline{margin:12px 0 0;padding:10px 12px;background:#fbf6ec;border:1px solid #ecd9b4;border-radius:6px;font-size:14px;line-height:1.5}
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0}
 .photorow input:focus-visible+img,.photorow:focus-within label.btn{outline:3px solid #c27c0e;outline-offset:2px}
+/* live captions on the Sign → Text camera */
+.caption{position:absolute;left:10px;right:10px;bottom:10px;display:none;align-items:center;gap:10px;background:rgba(17,19,23,.82);color:white;border-radius:8px;padding:10px 12px;z-index:2}
+.camera.on .caption{display:flex}
+.captext{flex:1;min-width:0;font-size:22px;font-weight:700;letter-spacing:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.capguess{--p:0;flex:none;width:44px;height:44px;border-radius:6px;display:grid;place-items:center;font-size:24px;font-weight:700;color:white;background:linear-gradient(to top,var(--accent) calc(var(--p)*100%),rgba(255,255,255,.12) 0)}
+.capguess:empty{visibility:hidden}.capguess.done{background:var(--green)}
+/* ---------- phones: slim top bar, tab bar at the bottom, everything sized to fit ---------- */
+@media(max-width:750px){
+  .sidebar{flex-wrap:wrap;gap:8px;padding:8px 12px;border-right:0;border-bottom:1px solid var(--line)}
+  .brand{font-size:17px;gap:8px}.brandicon{width:30px;height:30px}
+  .modeswitch{margin:0 0 0 auto}.modeswitch button{padding:8px 10px;min-height:40px}
+  .userbox{border:0;padding:0;margin:0}.userbox span{display:none}.userbox button{padding:8px 2px;font-size:13px;min-height:40px}
+  #installBtn{order:9;width:100%}
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:15;background:white;border-top:1px solid var(--line);display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .nav.hidden{display:none!important}
+  .nav button{text-align:center;padding:10px 2px;font-size:13px;min-height:46px}
+  .content{padding:14px 14px calc(86px + env(safe-area-inset-bottom))}
+  .header{margin-bottom:12px;gap:6px}.header h1{font-size:23px}.header p{font-size:13px;margin-top:2px}
+  .stats{gap:14px;font-size:12px}.stat .num{font-size:15px}
+  .grid{gap:12px}.panel{padding:14px}.panelhead{margin-bottom:10px}.panel h3{font-size:17px}
+  .camera{height:auto;aspect-ratio:4/3;max-height:46vh}
+  .stage{height:34vh;min-height:200px;max-height:280px}.stage.sm{height:26vh;min-height:170px}
+  .feedback{min-height:0;margin-top:10px;padding:10px 12px}
+  .actions{gap:8px;margin-top:10px}.btn{padding:12px}
+  .outbox{min-height:64px;font-size:22px;padding:12px 14px}
+  #signtextView .guess{display:none} /* the captions on the camera show the same thing */
+  .nowrow{margin-top:8px;min-height:0;gap:10px}.nowletter{font-size:34px;min-width:40px}
+  .wordboxes{gap:5px}.wordboxes span{width:34px;height:40px;font-size:18px}
+  .target{padding:12px}.target .letter{font-size:36px}.handbig{width:110px;height:110px}
+  .lesson-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .tile{padding:10px 4px}.handicon{width:46px;height:46px}.tile .small{display:none}
+  .unit{padding:14px}.unithead{gap:10px;margin-bottom:10px}.nextup{padding:14px}
+  .chips{gap:6px}.chip{padding:6px 2px}
+  .toast{bottom:calc(90px + env(safe-area-inset-bottom))}
+  .footer{margin-top:16px}
+}
+.camtarget{position:absolute;top:10px;right:10px;display:none;align-items:center;gap:8px;background:rgba(250,248,243,.94);border-radius:8px;padding:6px 12px 6px 8px;z-index:2;max-width:70%}
+.camera.on .camtarget{display:flex}
+.camtarget:empty{display:none!important}
+.camtarget .handicon{width:40px;height:40px}
+.camtarget small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.camtarget b{font-size:24px;line-height:1.1}
 </style>
 </head>
 <body>
@@ -215,18 +257,18 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
 <aside class="sidebar">
   <div class="brand"><div class="brandicon" aria-hidden="true"></div>SignSense</div>
   <div class="modeswitch" role="group" aria-label="App mode">
-    <button data-mode="learn" class="active" aria-pressed="true">Learn</button>
-    <button data-mode="translate" aria-pressed="false">Translate</button>
+    <button data-mode="translate" class="active" aria-pressed="true">Translate</button>
+    <button data-mode="learn" aria-pressed="false">Learn</button>
   </div>
-  <nav class="nav" data-modenav="learn" aria-label="Learning">
-    <button data-tab="learn" class="active">Learn</button>
+  <nav class="nav hidden" data-modenav="learn" aria-label="Learning">
+    <button data-tab="learn">Learn</button>
     <button data-tab="practice">Practice</button>
     <button data-tab="quiz">Quiz</button>
     <button data-tab="tests">Tests</button>
     <button data-tab="progress">Progress</button>
   </nav>
-  <nav class="nav hidden" data-modenav="translate" aria-label="Translator">
-    <button data-tab="signtext">Sign → Text</button>
+  <nav class="nav" data-modenav="translate" aria-label="Translator">
+    <button data-tab="signtext" class="active">Sign → Text</button>
     <button data-tab="textsign">Text → Sign</button>
   </nav>
   <div class="userbox"><span id="userName">Guest</span><button id="authBtn">Log in</button></div>
@@ -235,8 +277,8 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
 </aside>
 <main class="content">
 <header class="header">
-  <div><h1 id="pageTitle">Learn</h1><p id="pageSub">Pick up where you left off, or choose any open lesson.</p></div>
-  <div class="stats">
+  <div><h1 id="pageTitle">Sign to text</h1><p id="pageSub">Fingerspell one letter at a time. Drop your hand for a second to add a space.</p></div>
+  <div class="stats hidden">
     <div class="stat"><span class="num" id="streak">0</span>day streak</div>
     <div class="stat"><span class="num" id="xp">0</span>XP</div>
     <div class="stat"><span class="num" id="hearts">5</span>hearts</div>
@@ -244,7 +286,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
 </header>
 
 <!-- ================= LEARN ================= -->
-<div id="learnView">
+<div id="learnView" class="hidden">
   <div class="nextup">
     <div><div class="eyebrow" id="heroEyebrow">Unit 1 · First handshapes</div><h2 id="heroTitle">Start with the alphabet</h2></div>
     <button class="btn" id="continueBtn">Continue →</button>
@@ -267,6 +309,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
         <video id="video" autoplay muted playsinline></video><canvas id="canvas"></canvas>
         <div id="empty" class="placeholder"><b>Camera is off</b>Turn on your camera to see your hand landmarks and start practicing.</div>
         <div class="camstatus" id="overlay">Tracking</div>
+        <div class="camtarget" id="pCamTarget" aria-hidden="true"></div>
       </div>
       <div class="actions"><button class="btn full" id="startBtn">Turn on camera</button><button class="btn alt" id="stopBtn" disabled>Stop</button></div>
       <div id="feedback" class="feedback" role="status" aria-live="polite">Select a lesson and enable your camera. Camera video stays in your browser.</div>
@@ -330,6 +373,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
             <video id="xVideo" autoplay muted playsinline></video><canvas id="xCanvas"></canvas>
             <div id="xEmpty" class="placeholder"><b>Camera needed</b>Turn on your camera to sign your answers.</div>
             <div class="camstatus" id="xOverlay">Checking</div>
+            <div class="camtarget" id="xCamTarget" aria-hidden="true"></div>
           </div>
           <div class="actions"><button class="btn full" id="xStartBtn">Turn on camera</button><button class="btn alt" id="xStopBtn" disabled>Stop</button></div>
         </div>
@@ -367,7 +411,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
 </div>
 
 <!-- ================= TRANSLATE: SIGN → TEXT ================= -->
-<div id="signtextView" class="hidden">
+<div id="signtextView">
   <div class="grid">
     <section class="panel">
       <div class="panelhead"><h3>Camera</h3><span class="pill" id="tCameraTag">Camera off</span></div>
@@ -375,6 +419,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
         <video id="tVideo" autoplay muted playsinline></video><canvas id="tCanvas"></canvas>
         <div id="tEmpty" class="placeholder"><b>Camera is off</b>Turn on your camera and fingerspell a word.</div>
         <div class="camstatus" id="tOverlay">Translating</div>
+        <div class="caption" id="tCaption" aria-hidden="true"><span class="captext" id="tCapText"></span><span class="capguess" id="tCapGuess"></span></div>
       </div>
       <div class="actions"><button class="btn full" id="tStartBtn">Turn on camera</button><button class="btn alt" id="tStopBtn" disabled>Stop</button></div>
       <div id="tFeedback" class="feedback" role="status" aria-live="polite">Enable your camera to start. Camera video stays in your browser.</div>
@@ -427,7 +472,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
 </div>
 
 <footer class="footer">
-  <p style="margin:0">SignSense is a student-built tool for practicing the ASL fingerspelling alphabet. It finds 21 points on your hand with MediaPipe Hands and checks each letter with simple rules, so it can make mistakes, especially with T, N and M. ASL also uses movement, facial expression, grammar and context, which SignSense doesn't check. For real fluency, learn from Deaf teachers and the Deaf community.</p>
+  <p style="margin:0">SignSense is a student-built translator and trainer for the ASL fingerspelling alphabet. It finds 21 points on your hand with MediaPipe Hands and checks each letter with simple rules, so it can make mistakes, especially with T, N and M. ASL also uses movement, facial expression, grammar and context, which SignSense doesn't check. For real fluency, learn from Deaf teachers and the Deaf community.</p>
   <div class="legal">
     <details><summary>Privacy</summary><div>
       <h4>Your camera</h4>Camera video is processed inside your browser and is never recorded, saved or sent anywhere.
@@ -448,7 +493,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
   <div class="authcard" role="dialog" aria-modal="true" aria-labelledby="authTitle">
     <div class="brand" style="padding:0 0 18px"><div class="brandicon" aria-hidden="true"></div>SignSense</div>
     <h2 id="authTitle" style="margin:0 0 4px;font-size:24px">Welcome back</h2>
-    <p id="authSub" style="margin:0 0 16px;color:var(--muted)">Log in to pick up where you left off.</p>
+    <p id="authSub" style="margin:0 0 16px;color:var(--muted)">Translate ASL fingerspelling with your camera, and practice to get better.</p>
     <div class="modeswitch" style="margin:0 0 16px" role="group" aria-label="Log in or sign up">
       <button type="button" data-auth="login" class="active" aria-pressed="true">Log in</button>
       <button type="button" data-auth="signup" aria-pressed="false">Sign up</button>
@@ -964,7 +1009,7 @@ function loadState(key){
 }
 let state=loadState(KEY);
 
-let index=0,tab='learn',stream=null,hands=null,running=false,busy=false,lastFrame=0,holdStart=0,completedLatch=false,sessionDone=new Set(),lastFeedback='',toastTimeout=null;
+let index=0,tab='signtext',stream=null,hands=null,running=false,busy=false,lastFrame=0,holdStart=0,completedLatch=false,sessionDone=new Set(),lastFeedback='',toastTimeout=null;
 let wordPos=0,trail=[],lastShapeT=0,lastHit=0;
 const GRACE=250; // ms a hold survives a single misread frame
 // The camera can run in Practice or in Sign → Text. `cam` says which screen
@@ -1055,7 +1100,7 @@ function nextLessonIndex(){const d=doneSet();const i=LESSONS.findIndex((l,i)=>le
 const label=l=>l.type==='word'?l.word:l.id;
 
 /* ---------- navigation ---------- */
-const TITLES={tests:['Tests','Six levels, from single letters to a short conversation. Pass one to unlock the next.'],learn:['Learn','Pick up where you left off, or choose any open lesson.'],practice:['Practice','Hold your hand up to the camera and copy the shape on the right.'],quiz:['Quiz','Six questions, no camera needed. A wrong answer costs a heart.'],progress:['Progress','Your letters, streak and badges so far.'],signtext:['Sign to text','Fingerspell one letter at a time. Drop your hand for a second to add a space.'],textsign:['Text to sign','Type a word and the hand spells it out, letter by letter.']};
+const TITLES={tests:['Tests','Six levels, from single letters to a short conversation. Pass one to unlock the next.'],learn:['Learn','Pick up where you left off, or choose any open lesson.'],practice:['Practice','Hold your hand up to the camera and copy the letter shape.'],quiz:['Quiz','Six questions, no camera needed. A wrong answer costs a heart.'],progress:['Progress','Your letters, streak and badges so far.'],signtext:['Sign to text','Fingerspell one letter at a time. Drop your hand for a second to add a space.'],textsign:['Text to sign','Type a word and the hand spells it out, letter by letter.']};
 // Two modes: Learn (the lessons) and Translate (the translator tools).
 const MODE_OF={learn:'learn',practice:'learn',quiz:'learn',tests:'learn',progress:'learn',signtext:'translate',textsign:'translate'};
 const lastTab={learn:'learn',translate:'signtext'};
@@ -1069,6 +1114,7 @@ function setTab(t){
   Object.keys(MODE_OF).forEach(n=>{$(n+'View').classList.toggle('hidden',n!==t);document.querySelector(`[data-tab="${n}"]`).classList.toggle('active',n===t)});
   document.querySelectorAll('[data-modenav]').forEach(n=>n.classList.toggle('hidden',n.dataset.modenav!==mode));
   document.querySelectorAll('[data-mode]').forEach(b=>{const on=b.dataset.mode===mode;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});
+  document.querySelector('.stats').classList.toggle('hidden',mode==='translate');
   $('pageTitle').textContent=TITLES[t][0];$('pageSub').textContent=TITLES[t][1];
   if(t==='quiz'&&!quiz)renderQuizStart();
   if(t==='signtext')refreshOut();
@@ -1120,6 +1166,7 @@ function render(){
   const isWord=L.type==='word',spec=currentSpec();
   $('lessonHeading').textContent=isWord?'Fingerspell this word':'Your lesson';
   $('targetWord').textContent=label(L);$('targetWord').classList.toggle('word',isWord);
+  {const cur=isWord?L.word[Math.min(wordPos,L.word.length-1)]:L.id;$('pCamTarget').innerHTML=`<div class="handicon">${handSVG(cur)}</div><div><small>${isWord?'Spell '+esc(L.word):'Sign'}</small><b>${cur}</b></div>`}
   $('handPic').innerHTML=handSVG(isWord?L.word[Math.min(wordPos,L.word.length-1)]:L.id,'handsvg big');
   $('targetDesc').textContent=isWord?`Sign each letter in order and hold it briefly. Now signing ${L.word[Math.min(wordPos,L.word.length-1)]}: ${spec.desc}`:spec.desc;
   $('memoryTip').textContent=(isWord?'Keep your hand in the same spot and let each letter flow into the next.':spec.memory);
@@ -1272,6 +1319,7 @@ function showGuess(r,det,label,p='t'){
   if(c!==shownGuessFor[p]){shownGuessFor[p]=c;$(p+'GuessPic').innerHTML=c?handSVG(c):'';$(p+'Guess').textContent=c||''}
   $(p+'GuessLabel').textContent=label;
   $(p+'Hold').style.width=(r?.cand?r.progress*100:c?100:0)+'%';$(p+'Hold').classList.toggle('done',!r?.cand&&!!c);
+  if(p==='t'){const g=$('tCapGuess');g.textContent=c||'';g.style.setProperty('--p',r?.cand?r.progress:c?1:0);g.classList.toggle('done',!r?.cand&&!!c)}
 }
 // Standard label + feedback for a frame (returns [label, message, type]).
 function readerStatus(out,typer,autoSpace){
@@ -1290,6 +1338,7 @@ function tFeedback(msg,type){const el=$('tFeedback'),cls='feedback '+(type||'');
 function refreshOut(){
   const txt=typer.text;if(txt===shownText)return;shownText=txt;
   $('tOut').innerHTML=(txt?esc(txt):'<span class="empty">Your translation appears here.</span>')+'<span class="caret"></span>';
+  $('tCapText').textContent=txt.length>32?'…'+txt.slice(-31):txt||'Start signing…';
   const n=txt.replace(/\s/g,'').length;$('tCount').textContent=n+(n===1?' letter':' letters');
 }
 function resetTranslator(){reader.reset();showGuess(null,null,'Camera off')}
@@ -1330,14 +1379,14 @@ async function start(name){
     stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:'user',width:{ideal:960},height:{ideal:720}}});
     video.srcObject=stream;await video.play();
     canvas.width=video.videoWidth;canvas.height=video.videoHeight;setAspect(video.videoWidth/video.videoHeight);
-    empty.innerHTML=idle;running=true;$(c.empty).classList.add('hidden');$(c.overlay).classList.add('show');$(c.tag).textContent='Camera on';$(c.tag).classList.add('live');
+    empty.innerHTML=idle;running=true;$(c.empty).classList.add('hidden');$(c.empty).parentElement.classList.add('on');$(c.overlay).classList.add('show');$(c.tag).textContent='Camera on';$(c.tag).classList.add('live');
     $(c.stopBtn).disabled=false;$(c.startBtn).textContent='Camera running';c.msg('Camera on! Show your hand to begin.','');loop();
   }catch(e){empty.innerHTML=idle;c.msg('Could not start camera: '+e.message,'warn');$(c.startBtn).disabled=false;$(c.startBtn).textContent='Try again';if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;try{await hands?.close()}catch(e){}hands=null}
 }
 async function stop(){
   const c=cam;if(!c)return;
   running=false;stream?.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;try{await hands?.close()}catch(e){}hands=null;
-  ctx.clearRect(0,0,canvas.width,canvas.height);$(c.empty).classList.remove('hidden');$(c.overlay).classList.remove('show');
+  ctx.clearRect(0,0,canvas.width,canvas.height);$(c.empty).classList.remove('hidden');$(c.empty).parentElement.classList.remove('on');$(c.overlay).classList.remove('show');
   $(c.tag).textContent='Camera off';$(c.tag).classList.remove('live');$(c.stopBtn).disabled=true;$(c.startBtn).disabled=false;$(c.startBtn).textContent='Turn on camera';
   c.msg('Camera stopped. Your video was not uploaded.','');c.onStop();
 }
@@ -1479,6 +1528,8 @@ async function toEnglish(text,from,status){
   return{text:tmp.value,via:'MyMemory'};
 }
 let signing=false;
+// On a phone the hand can be scrolled off screen; bring it back into view.
+function showStage(){const r=$('tsStage').getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)$('tsStage').scrollIntoView({behavior:'smooth',block:'start'})}
 const withTimeout=(promise,ms)=>Promise.race([promise,new Promise((_,fail)=>setTimeout(()=>fail(Error('timeout')),ms))]);
 async function playText(){
   const raw=$('tsInput').value.trim(),lang=langOf($('tsLang').value);
@@ -1492,7 +1543,8 @@ async function playText(){
       const r=await toEnglish(raw,lang.code,say);txt=r.text.trim();
       $('tsTrans').textContent=`In English: ${txt} (translated from ${lang.name} by ${r.via})`;$('tsTrans').classList.remove('hidden');
     }
-    if(!player.play(txt))say(lang.code==='en'?'Only the letters A–Z can be fingerspelled. Try a word.':'The translation has no letters to fingerspell.');
+    if(player.play(txt))showStage();
+    else say(lang.code==='en'?'Only the letters A–Z can be fingerspelled. Try a word.':'The translation has no letters to fingerspell.');
   }catch(e){say(e.message||'Translation failed.')}
   finally{signing=false;$('tsPlay').disabled=false}
 }
@@ -1585,6 +1637,8 @@ function setupItem(){
 }
 function renderBoxes(){
   const item=run.items[run.i],got=onlyLetters(xTyper.text).length;let k=0;
+  const next=onlyLetters(item)[got];
+  $('xCamTarget').innerHTML=`<div><small>${run.level.id===1?'Sign':'Spell '+esc(item)}</small><b>${next||'✓'}</b></div>`;
   $('xBoxes').innerHTML=run.level.id===1?'':[...item].map(c=>{if(c===' ')return'<span class="space"></span>';const j=k++;return `<span class="${j<got?'done':j===got?'now':''}">${c}</span>`}).join('');
 }
 // "Show hint" draws the next letter; T, N and M get a button for when the webcam can't see them.
@@ -1785,13 +1839,13 @@ function useProfile(name){
   $('authView').classList.add('hidden');
   persist();typer.clear();shownText=null;refreshOut();drawRest();drawLogos();
   run=null;xPlayer.stop();setXView('list');
-  choose(nextLessonIndex());setTab('learn');
+  choose(nextLessonIndex());setTab(lastTab.translate);
 }
 function setAuthMode(m){
   authMode=m;const up=m==='signup';
   document.querySelectorAll('[data-auth]').forEach(b=>{const on=b.dataset.auth===m;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});
   $('authTitle').textContent=up?'Create your profile':'Welcome back';
-  $('authSub').textContent=up?'Pick a username and password. Your progress is saved under it.':'Log in to pick up where you left off.';
+  $('authSub').textContent=up?'Pick a username and password. Your progress is saved under it.':'Translate ASL fingerspelling with your camera, and practice to get better.';
   $('authConfirmRow').classList.toggle('hidden',!up);$('authSubmit').textContent=up?'Sign up':'Log in';
   $('authPass').autocomplete=up?'new-password':'current-password';$('authError').textContent='';
 }

@@ -1,16 +1,25 @@
 # SignSenseASL 🤟
 
-A Duolingo-style web app for learning the American Sign Language (ASL) fingerspelling alphabet, with live webcam feedback, plus a fingerspelling translator.
+A web app that translates American Sign Language (ASL) fingerspelling with your camera, turns text from 12 languages (typed or photographed) into signs with an animated hand, and teaches the alphabet step by step.
 
-**Live app:** _add your Netlify or GitHub Pages link here_
+**Live app:** https://anish7maturu.github.io/SignSenseASL/ (works on phones too, and can be installed as an app)
 
 ## What it does
 
-The app has two modes, switched at the top of the sidebar: **Learn** and **Translate**.
+The app has two modes, switched at the top of the sidebar: **Translate** (where it opens) and **Learn**.
 
 ### Profiles
 
 Sign up with a username and password (no email), or continue as a guest. Each profile keeps its own XP, streak and progress, so several people can share one computer. Profiles are saved **in this browser only**: they don't follow you to another computer, and clearing the browser's data removes them. Passwords are never stored, only a salted PBKDF2 hash of each one.
+
+### Translate mode
+
+- **Sign → Text:** fingerspell to the webcam and the letters are typed out, with live captions on the camera picture. Hold a letter still for about a second to add it; lower your hand to add a space; draw J and Z in the air. Buttons to add a space, delete, clear, read the text aloud, copy it, or send it to Text → Sign.
+- **Text → Sign:** type a word or short sentence and an animated hand (just a hand, not a whole person) fingerspells it letter by letter. It moves smoothly between letters, bounces for repeated letters (like the L's in HELLO), and draws J and Z in the air. Slow, normal and fast speeds, with pause and replay.
+- **Other languages:** pick one of 12 languages (Spanish, French, German, Portuguese, Italian, Vietnamese, Tagalog, Hindi, Chinese, Korean, Arabic or English). Your words are translated to English, shown on screen, and then fingerspelled. Chrome's built-in translator is used when the browser has one (the text stays on the computer); otherwise the free [MyMemory](https://mymemory.translated.net) service translates it. Accented letters are signed as plain letters (é as E).
+- **Photo to signs:** take or choose a photo of a sign, a menu or a page. [Tesseract](https://github.com/naptha/tesseract.js) reads the text inside the browser (the photo is never uploaded), and the hand signs it, after translating if needed.
+
+Both translator modes work with **fingerspelling** (the 26 letters), not whole-word ASL signs or ASL grammar.
 
 ### Learn mode
 
@@ -28,15 +37,6 @@ Sign up with a username and password (no email), or continue as a guest. Each pr
 
   A wrong letter is taken back automatically with a hint about the right one. Because webcams often can't see the tucked thumb in T, N and M, those letters get a "the camera can't see this letter" button.
 - **Progress:** XP, daily streaks, quests, achievements and an alphabet chart. Progress is saved in the browser.
-
-### Translate mode
-
-- **Sign → Text:** fingerspell to the webcam and the letters are typed out. Hold a letter still for about a second to add it; lower your hand to add a space; draw J and Z in the air. Buttons to add a space, delete, clear, read the text aloud, copy it, or send it to Text → Sign.
-- **Text → Sign:** type a word or short sentence and an animated hand (just a hand, not a whole person) fingerspells it letter by letter. It moves smoothly between letters, bounces for repeated letters (like the L's in HELLO), and draws J and Z in the air. Slow, normal and fast speeds, with pause and replay.
-- **Other languages:** pick one of 12 languages (Spanish, French, German, Portuguese, Italian, Vietnamese, Tagalog, Hindi, Chinese, Korean, Arabic or English). Your words are translated to English, shown on screen, and then fingerspelled. Chrome's built-in translator is used when the browser has one (the text stays on the computer); otherwise the free [MyMemory](https://mymemory.translated.net) service translates it. Accented letters are signed as plain letters (é as E).
-- **Photo to signs:** take or choose a photo of a sign, a menu or a page. [Tesseract](https://github.com/naptha/tesseract.js) reads the text inside the browser (the photo is never uploaded), and the hand signs it, after translating if needed.
-
-Both translator modes work with **fingerspelling** (the 26 letters), not whole-word ASL signs or ASL grammar.
 
 ### Install it as an app
 
