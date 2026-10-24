@@ -1,7 +1,7 @@
 // SignSense service worker: saves the app so it opens without internet
 // after the first visit, and makes it installable.
 // Change VERSION when the list below changes, so old copies are cleared.
-const VERSION = 'signsense-v1';
+const VERSION = 'signsense-v2';
 const APP_FILES = [
   './', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',

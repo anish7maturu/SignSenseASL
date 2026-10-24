@@ -1,7 +1,7 @@
 {
-  "name": "SignSense: ASL fingerspelling",
+  "name": "SignSense: ASL fingerspelling translator",
   "short_name": "SignSense",
-  "description": "Learn and translate the ASL fingerspelling alphabet with your webcam.",
+  "description": "Translate ASL fingerspelling with your camera, turn text from any language into signs, and practice step by step.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
