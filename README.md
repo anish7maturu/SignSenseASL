@@ -24,6 +24,7 @@ Both translator modes work with **fingerspelling** (the 26 letters), not whole-w
 ### Learn mode
 
 - **Learn path:** 7 units covering all 26 letters plus fingerspelled words (HI, OK, YES, BYE, COW, FLY, LOVE, WOLF). Units unlock as you progress.
+- **Teach me a word:** say "Teach me hello" (or type a word) and Finn, the animated signing hand, teaches it one letter at a time. Finn explains each handshape out loud, shows how to sign double letters and J and Z, spells the whole word slowly, then watches you sign it back on the camera and tells you which letter to fix. The voice button uses the browser's speech recognition; Finn's lessons are a fixed script, not a chatbot.
 - **Live practice:** the webcam tracks 21 points on your hand and checks your handshape in real time. A finger checklist shows which fingers are right and which to fix.
 - **Movement letters:** J and Z are checked by tracing the fingertip's path through the air.
 - **Quiz:** a no-camera handshape quiz with hearts.
@@ -82,12 +83,14 @@ In GitHub Codespaces, run the same command and open the forwarded port 8000.
 
 `tests/languages.test.js` checks the language list, accented letters, reading translator answers (including errors and the daily-limit warning), and cleaning up text read from photos.
 
+`tests/teacher.test.js` checks that "Teach me" requests are understood ("teach me hello", "how do you sign thank you", a word on its own) and that Finn's lessons have the right steps, including double letters and two-word phrases.
+
 `tests/pwa.test.js` checks the manifest, that every icon exists at the right size, and that the service worker's offline file list is complete.
 
 `tests/accounts.test.js` checks sign-up rules, that logging in needs the right password, that capitals in a username don't matter, and that passwords themselves are never saved.
 
 ```bash
-npm test   # runs all six test files
+npm test   # runs all seven test files
 ```
 
 ## Limitations
@@ -100,7 +103,7 @@ SignSenseASL is an educational prototype, not a certified ASL assessment. Finger
 - Reading text in photos: Tesseract.js, Apache 2.0 license
 - Translation: Chrome's built-in Translator API, or the MyMemory translation service
 - Font: Atkinson Hyperlegible (Braille Institute, Google Fonts)
-- AI assistance: the Translate mode (Sign → Text, Text → Sign), the profiles (log in / sign up), the test levels, other-language translation, photo reading, the installable app, the visual redesign, and their tests were written with help from Claude, an AI assistant by Anthropic.
+- AI assistance: the Translate mode (Sign → Text, Text → Sign), the profiles (log in / sign up), the test levels, Teach me a word, other-language translation, photo reading, the installable app, the visual redesign, and their tests were written with help from Claude, an AI assistant by Anthropic.
 - _Add team members and any other tools used during development here._
 
 ## License
