@@ -527,7 +527,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
       <h4>Your account and progress</h4>Usernames, progress and settings are stored only in this browser (localStorage). There is no server and no email. Passwords are never stored: only a scrambled hash of each one. Clearing your browser's site data deletes everything.
       <h4>Outside services</h4>The page loads the MediaPipe hand tracker from cdn.jsdelivr.net and its font from Google Fonts. Those services can see that your browser asked for those files, as with any website. SignSense has no ads, analytics or tracking.
       <h4>Photos</h4>Photos you choose in Text to Sign are read by Tesseract inside your browser and are never uploaded. The first time, the text reader and its language data download from cdn.jsdelivr.net.
-      <h4>Voice</h4>When you press the microphone button in Teach me, your browser's speech recognition turns what you say into text. Chrome and Safari may send that audio to Google's or Apple's servers to do this. Nothing is recorded by SignSense. Finn's voice is made by your browser.
+      <h4>Voice</h4>When you press the microphone button in Teach me, your browser's speech recognition turns what you say into text. Chrome and Safari may send that audio to Google's or Apple's servers to do this. Nothing is recorded by SignSense. Finn's voice is a set of sound files that come with the app (made with the Kokoro text-to-speech model); if they can't play, your browser's own voice reads the line.
       <h4>Translation</h4>When you pick a language other than English, Chrome's built-in translator is used if your browser has one, and the text stays on your computer. Otherwise the text is sent to the free MyMemory translation service (mymemory.translated.net) to be translated. Don't translate private information.
       <h4>Kids</h4>SignSense doesn't ask for names, emails or ages. Pick a username that isn't your real name if you like.
     </div></details>
@@ -1074,6 +1074,40 @@ function teachScript(word,descOf){
   steps.push({kind:'together',word:W,say:`Now all together, slowly: ${W}.`,voice:`Now all together, slowly: "${w}".`});
   steps.push({kind:'turn',word:W,say:`Your turn! Turn on your camera and fingerspell ${W}. Hold each letter still for about a second.`,voice:`Your turn! Turn on your camera and fingerspell "${w}". Hold each letter still for about a second.`});
   return steps;
+}
+// Finn's recorded voice. Each lesson line is played from short recordings
+// in voice/ (made with the Kokoro text-to-speech model, see README), so
+// Finn sounds like a person instead of the browser's robot voice. Words in
+// VOICE_WORDS have their own "Let's learn …" recording; any other word
+// gets "Let's learn a new word". Letters are said by name ("aitch").
+const LETTER_NAMES={A:'Ay',B:'Bee',C:'See',D:'Dee',E:'Ee',F:'Eff',G:'Gee',H:'Aitch',I:'Eye',J:'Jay',K:'Kay',L:'Ell',M:'Em',N:'En',O:'Oh',P:'Pee',Q:'Cue',R:'Are',S:'Ess',T:'Tee',U:'You',V:'Vee',W:'Double you',X:'Ex',Y:'Why',Z:'Zee'};
+const VOICE_WORDS=['HI','HELLO','BYE','YES','NO','OK','MOM','DAD','LOVE','FRIEND','THANK YOU','PLEASE','SORRY','HELP','NAME','ASL','CAT','DOG','SUN','HAT','BUS','RED','BIG','CUP','FOX','PIG','BED','COW','FLY','WOLF','SCHOOL','FAMILY','WATER','HAPPY','ORANGE','PURPLE','GARDEN','PENCIL','MONKEY','WINTER','BROTHER','SISTER','PIZZA','JAZZ','FOOD','HOME'];
+const voiceSlug=w=>String(w).toLowerCase().trim().replace(/\s+/g,'-');
+// Every recording and the words it says (used to make the files, and by the tests).
+function voiceLines(descOf){
+  const lines={
+    'learn-new':"Let's learn a new word.",'spelled':"It's spelled",'then':'then','watch':'Watch my hand first.',
+    'again':'The same letter again. Make the same shape, then bounce or slide your hand a little to the side, so people can see it\'s a double letter.',
+    'together':'Now all together, slowly.',
+    'turn':'Your turn! Turn on your camera and fingerspell the word. Hold each letter still for about a second.',
+    'great':'Great job! You did it.',
+    'silence':''
+  };
+  for(const L of Object.keys(LETTER_NAMES)){lines['name-'+L]=LETTER_NAMES[L]+'.';lines['letter-'+L]=LETTER_NAMES[L]+'. '+descOf(L)}
+  for(const w of VOICE_WORDS){const say=w==='ASL'?'A, S, L':w==='OK'?'okay':w.toLowerCase();lines['learn-'+voiceSlug(w)]=`Let's learn ${say}.`}
+  return lines;
+}
+// Which recordings to play, in order, for one lesson step.
+function teachClips(step){
+  if(step.kind==='intro'){
+    const W=step.word,known=VOICE_WORDS.includes(W);
+    const names=W.split(' ').map(w=>w.split('').map(L=>'name-'+L));
+    return[known?'learn-'+voiceSlug(W):'learn-new','spelled',...names.flatMap((n,i)=>i?['then',...n]:n),'watch'];
+  }
+  if(step.kind==='letter')return step.again?['name-'+step.ch,'again']:['letter-'+step.ch];
+  if(step.kind==='together')return['together'];
+  if(step.kind==='turn')return['turn'];
+  return[];
 }
 /* ===================== TEACHER-END ===================== */
 
@@ -1895,7 +1929,7 @@ $('tClear').onclick=()=>{typer.clear();refreshOut()};
 $('tSpeak').onclick=()=>{
   const txt=typer.text.trim();if(!txt)return toast('Sign some letters first');
   if(!('speechSynthesis' in window))return toast('Reading aloud is not supported in this browser');
-  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt.toLowerCase());u.lang='en-US';speechSynthesis.speak(u);
+  browserSay(txt.toLowerCase(),()=>{});
 };
 $('tCopy').onclick=async()=>{const txt=typer.text.trim();if(!txt)return toast('Nothing to copy yet');try{await navigator.clipboard.writeText(txt);toast('Copied')}catch(e){toast('Could not copy')}};
 $('tSend').onclick=()=>{const txt=typer.text.trim();if(!txt)return toast('Sign some letters first');$('tsLang').value='en';$('tsLang').onchange();$('tsInput').value=txt;setTab('textsign');playText()};
@@ -1927,15 +1961,42 @@ function kStrip(){
   const s=K.steps[K.i],cur=s?.kind==='letter'?s.i:-1,all=s&&s.kind!=='letter'&&s.kind!=='intro';let n=0;
   $('kStrip').innerHTML=K.word.split('').map(c=>{if(c===' ')return'<span class="space"></span>';const j=n++;return`<span class="${all||j<cur?'done':''} ${j===cur?'now':''}">${c}</span>`}).join('');
 }
-// Say a line out loud; `done` runs when it finishes (or after a reading-time guess).
-function kSay(text,done){
-  clearTimeout(K.timer);const tok=K.token;let fired=false;
+// Finn's voice: recordings from voice/ played one after another. If a
+// recording can't play (no internet the first time, say), the browser's
+// best-sounding built-in voice reads the line instead.
+const finnAudio=new Audio();finnAudio.preload='auto';
+function bestVoice(){
+  if(!canSpeak)return null;
+  const rank=v=>(/natural|neural|premium|enhanced|online/i.test(v.name)?40:0)+(/siri|samantha|ava|allison|aria|jenny|google us english|zoe|evan|nathan/i.test(v.name)?20:0)+(v.lang==='en-US'?5:0);
+  return speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang)).sort((a,b)=>rank(b)-rank(a))[0]||null;
+}
+function browserSay(text,done){
+  if(!canSpeak){done();return}
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';const v=bestVoice();if(v)u.voice=v;
+  u.onend=done;u.onerror=done;speechSynthesis.speak(u);
+}
+function stopFinn(){finnAudio.onended=finnAudio.onerror=null;finnAudio.pause();if(canSpeak)speechSynthesis.cancel()}
+// Lets the recordings play later without a tap (phones only allow sound
+// that starts from a tap, so this is called from the buttons).
+function unlockFinn(){finnAudio.onended=finnAudio.onerror=null;finnAudio.src='voice/silence.mp3';finnAudio.play()?.catch(()=>{})}
+function playClips(names,done,fail){
+  let i=0,over=false;const end=f=>{if(over)return;over=true;finnAudio.onended=finnAudio.onerror=null;f()};
+  const next=()=>{
+    if(over)return;if(i>=names.length)return end(done);
+    finnAudio.src='voice/'+names[i++]+'.mp3';finnAudio.onended=next;finnAudio.onerror=()=>end(fail);
+    finnAudio.play()?.catch(()=>end(fail));
+  };
+  next();
+}
+// Say one lesson step out loud; `done` runs when it finishes (or after a reading-time guess).
+function kSay(step,done){
+  clearTimeout(K.timer);const tok=K.token,text=step.voice;let fired=false;
   const fin=()=>{if(fired||tok!==K.token)return;fired=true;clearTimeout(K.timer);done()};
-  if(canSpeak)speechSynthesis.cancel();
-  if(!canSpeak||!$('kVoice').checked){K.timer=setTimeout(fin,1400+text.length*55);return}
-  const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.95;u.onend=fin;u.onerror=fin;
-  speechSynthesis.speak(u);
-  K.timer=setTimeout(fin,4000+text.length*110); // in case the voice never reports that it ended
+  stopFinn();
+  if(!$('kVoice').checked){K.timer=setTimeout(fin,1400+text.length*55);return}
+  const clips=teachClips(step);
+  if(clips.length)playClips(clips,fin,()=>{if(tok===K.token&&!fired)browserSay(text,fin)});else browserSay(text,fin);
+  K.timer=setTimeout(fin,5000+text.length*110); // in case the sound never reports that it ended
 }
 function kButtons(){
   const on=K.steps.length>0;
@@ -1965,7 +2026,7 @@ function kStep(i){
     else showIt();
   }
   else{kPlayer.rest();anim();kTurnStart()}
-  kSay(s.voice,()=>{talkDone=true;next()});
+  kSay(s,()=>{talkDone=true;next()});
   if(window.matchMedia('(max-width:750px)').matches&&s.kind==='intro')$('kTeacher').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function teachWord(raw){
@@ -1980,7 +2041,7 @@ function teachWord(raw){
   kStep(0);return true;
 }
 function kStopLesson(resetBubble=true){
-  K.token++;clearTimeout(K.timer);if(canSpeak)speechSynthesis.cancel();kPlayer.stop();
+  K.token++;clearTimeout(K.timer);stopFinn();kPlayer.stop();
   if(resetBubble){K.steps=[];K.i=-1;K.word='';$('kStrip').innerHTML='';$('kBubble').textContent='Okay, stopped. Tell me another word whenever you’re ready.';kTurnEnd()}
   kButtons();
 }
@@ -2004,7 +2065,7 @@ function kCheck(c){
     kBoxes();K.turn=false;sound();state.xp+=5;bumpDaily();persist();render();
     kFeedback(`You signed ${K.word}! +5 XP`,'good');
     $('kBubble').innerHTML=`Great job! You fingerspelled <b>${esc(K.word)}</b>. Want to learn another word?`;
-    if(canSpeak&&$('kVoice').checked){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('Great job! You did it.');u.lang='en-US';speechSynthesis.speak(u)}
+    if($('kVoice').checked){stopFinn();playClips(['great'],()=>{},()=>browserSay('Great job! You did it.',()=>{}))}
     $('kStatus').textContent='Done';return;
   }
   if(res.status==='wrong'){kTyper.backspace();kFeedback(`That looked like ${c}. The next letter is ${res.expected}: ${LETTERS[res.expected].cue}`,'warn');kStill(res.expected)}
@@ -2029,15 +2090,14 @@ CAMS.teach={tab:'teach',video:'kVideo',canvas:'kCanvas',empty:'kEmpty',overlay:'
 $('kStartBtn').onclick=()=>start('teach');$('kStopBtn').onclick=stop;
 $('kMark').onclick=()=>{if(!K.turn)return;const c=onlyLetters(K.word)[onlyLetters(kTyper.text).length];if(!c)return;kTyper.add(c);kCheck(c)};
 $('kRestart').onclick=()=>{if(!K.word)return;K.turn=true;kTyper.clear();kReader.reset();kBoxes();$('kStatus').textContent='Your turn';kFeedback('Start again from the first letter.','')};
-$('kGo').onclick=()=>teachWord($('kInput').value);
-$('kInput').onkeydown=e=>{if(e.key==='Enter')teachWord($('kInput').value)};
+$('kGo').onclick=()=>{unlockFinn();teachWord($('kInput').value)};
+$('kInput').onkeydown=e=>{if(e.key==='Enter'){unlockFinn();teachWord($('kInput').value)}};
 $('kBack').onclick=()=>{if(K.i>0){if(K.turn)kTurnEnd();kStep(K.i-1)}};
 $('kNext').onclick=()=>{if(K.i<K.steps.length-1)kStep(K.i+1)};
 $('kRepeat').onclick=()=>{if(K.steps.length)kStep(K.i)};
 $('kStop').onclick=()=>kStopLesson();
-$('kVoice').onchange=()=>{if(!$('kVoice').checked&&canSpeak)speechSynthesis.cancel()};
-document.querySelectorAll('[data-teach]').forEach(b=>b.onclick=()=>teachWord(b.dataset.teach));
-if(!canSpeak){$('kVoice').checked=false;$('kVoice').disabled=true}
+$('kVoice').onchange=()=>{if(!$('kVoice').checked)stopFinn()};
+document.querySelectorAll('[data-teach]').forEach(b=>b.onclick=()=>{unlockFinn();teachWord(b.dataset.teach)});
 // Voice: "Teach me hello". Uses the browser's speech recognition when it has one.
 const SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
 let kRec=null;
@@ -2045,7 +2105,7 @@ if(!SpeechRec){$('kMic').disabled=true;$('kMicLabel').textContent='Voice not ava
 $('kMic').onclick=()=>{
   if(!SpeechRec)return;
   if(kRec){kRec.stop();return}
-  if(canSpeak)speechSynthesis.cancel();
+  stopFinn();unlockFinn();
   const rec=new SpeechRec();kRec=rec;rec.lang='en-US';rec.interimResults=true;rec.maxAlternatives=1;
   let heard='';
   $('kMic').classList.add('listening');$('kMicLabel').textContent='Listening… tap to stop';$('kMicNote').textContent='Say “Teach me” and a word.';
@@ -2055,7 +2115,7 @@ $('kMic').onclick=()=>{
   try{rec.start()}catch(e){kRec=null;$('kMic').classList.remove('listening');$('kMicNote').textContent='Voice didn’t start. Type a word below instead.'}
 };
 kPlayer.rest();
-function kLeave(){if(K.steps.length&&K.steps[K.i]?.kind!=='turn')kStopLesson();else{K.token++;clearTimeout(K.timer);if(canSpeak)speechSynthesis.cancel()}}
+function kLeave(){if(K.steps.length&&K.steps[K.i]?.kind!=='turn')kStopLesson();else{K.token++;clearTimeout(K.timer);stopFinn()}}
 window.kLeave=kLeave;
 /* ---------- accounts ---------- */
 const safeStore={getItem:k=>{try{return localStorage.getItem(k)}catch(e){return null}},setItem:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};

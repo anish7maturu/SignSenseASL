@@ -3,7 +3,8 @@
 const fs=require('fs');
 const html=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'utf8');
 const block=n=>{const s=html.split(`/* ===================== ${n}-START`)[1].split(`/* ===================== ${n}-END`)[0];return s.slice(s.indexOf('*/')+2)};
-const K=new Function(block('TEACHER')+';return{parseTeachRequest,teachScript};')();
+const K=new Function(block('TEACHER')+';return{parseTeachRequest,teachScript,teachClips,voiceLines,VOICE_WORDS,LETTER_NAMES};')();
+const path=require('path'),voiceDir=path.join(__dirname,'..','voice');
 let fails=0;
 function check(name,ok){console.log((ok?'ok  ':'FAIL')+'  '+name);if(!ok)fails++}
 const P=K.parseTeachRequest;
@@ -32,5 +33,20 @@ const t=K.teachScript('Thank you',desc);
 check('two words: spaces are skipped, letters counted across both',t.filter(x=>x.kind==='letter').map(x=>x.ch).join('')==='THANKYOU'&&t[1].say.includes('of 8'));
 check('two words: the intro says where the second word starts',t[0].say.includes('T, H, A, N, K — then Y, O, U'));
 check('nothing to teach gives no steps',K.teachScript('123',desc).length===0&&K.teachScript('',desc).length===0);
+
+
+// Finn's recorded voice
+const lines=K.voiceLines(L=>'how to make '+L);
+const have=n=>fs.existsSync(path.join(voiceDir,n+'.mp3'));
+const missing=Object.keys(lines).filter(n=>!have(n));
+check('every recording Finn can play exists in voice/'+(missing.length?' (missing: '+missing.slice(0,5).join(', ')+')':''),missing.length===0);
+check('all 26 letters have a name and a how-to recording',Object.keys(K.LETTER_NAMES).length===26&&Object.keys(K.LETTER_NAMES).every(L=>lines['letter-'+L]&&lines['name-'+L]));
+const clipsFor=w=>K.teachScript(w,desc).flatMap(K.teachClips);
+check('every clip a lesson asks for is a known recording',['hello','thank you','jazz','xylophone','qwerty'].every(w=>clipsFor(w).every(n=>n in lines)));
+check('a known word gets its own "Let\'s learn" recording',K.teachClips(s[0])[0]==='learn-hello');
+check('an unknown word gets "Let\'s learn a new word"',K.teachClips(K.teachScript('xylophone',desc)[0])[0]==='learn-new');
+check('the intro spells the letters by name, with "then" between words',K.teachClips(t[0]).join(' ')==='learn-thank-you spelled name-T name-H name-A name-N name-K then name-Y name-O name-U watch');
+check('a double letter says the letter name, then "the same letter again"',K.teachClips(s[4]).join()==='name-L,again');
+check('the recordings are small enough for phones (under 2 MB in all)',fs.readdirSync(voiceDir).reduce((t,f)=>t+fs.statSync(path.join(voiceDir,f)).size,0)<2e6);
 
 if(fails){console.error(`FAILED (${fails})`);process.exit(1)}else console.log('ALL TEACHER TESTS PASSED');

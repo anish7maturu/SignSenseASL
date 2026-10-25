@@ -24,7 +24,7 @@ Both translator modes work with **fingerspelling** (the 26 letters), not whole-w
 ### Learn mode
 
 - **Learn path:** 7 units covering all 26 letters plus fingerspelled words (HI, OK, YES, BYE, COW, FLY, LOVE, WOLF). Units unlock as you progress.
-- **Teach me a word:** say "Teach me hello" (or type a word) and Finn, the animated signing hand, teaches it one letter at a time. Finn explains each handshape out loud, shows how to sign double letters and J and Z, spells the whole word slowly, then watches you sign it back on the camera and tells you which letter to fix. The voice button uses the browser's speech recognition; Finn's lessons are a fixed script, not a chatbot.
+- **Teach me a word:** say "Teach me hello" (or type a word) and Finn, the animated signing hand, teaches it one letter at a time. Finn explains each handshape out loud in a natural recorded voice, shows how to sign double letters and J and Z, spells the whole word slowly, then watches you sign it back on the camera and tells you which letter to fix. The voice button uses the browser's speech recognition; Finn's lessons are a fixed script, not a chatbot.
 - **Live practice:** the webcam tracks 21 points on your hand and checks your handshape in real time. A finger checklist shows which fingers are right and which to fix.
 - **Movement letters:** J and Z are checked by tracing the fingertip's path through the air.
 - **Quiz:** a no-camera handshape quiz with hearts.
@@ -102,8 +102,9 @@ SignSenseASL is an educational prototype, not a certified ASL assessment. Finger
 - Hand tracking: MediaPipe Hands (Google), Apache 2.0 license
 - Reading text in photos: Tesseract.js, Apache 2.0 license
 - Translation: Chrome's built-in Translator API, or the MyMemory translation service
+- Finn's voice: recordings in `voice/` made with [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) (the "af_heart" voice), Apache 2.0 license. Run offline once to make the files; the app just plays them.
 - Font: Atkinson Hyperlegible (Braille Institute, Google Fonts)
-- AI assistance: the Translate mode (Sign → Text, Text → Sign), the profiles (log in / sign up), the test levels, Teach me a word, other-language translation, photo reading, the installable app, the visual redesign, and their tests were written with help from Claude, an AI assistant by Anthropic.
+- AI assistance: the Translate mode (Sign → Text, Text → Sign), the profiles (log in / sign up), the test levels, Teach me a word and Finn's recorded voice, other-language translation, photo reading, the installable app, the visual redesign, and their tests were written with help from Claude, an AI assistant by Anthropic.
 - _Add team members and any other tools used during development here._
 
 ## License
