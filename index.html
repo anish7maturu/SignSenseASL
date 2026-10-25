@@ -250,6 +250,13 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
 .camtarget .handicon{width:40px;height:40px}
 .camtarget small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .camtarget b{font-size:24px;line-height:1.1}
+.bubble{position:relative;background:#fbf6ec;border:1px solid #ecd9b4;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:17px;line-height:1.45;min-height:52px}
+.bubble::after{content:'';position:absolute;left:28px;bottom:-8px;width:14px;height:14px;background:#fbf6ec;border-right:1px solid #ecd9b4;border-bottom:1px solid #ecd9b4;transform:rotate(45deg)}
+.bubble b{color:var(--accent)}
+.micbtn{display:flex;align-items:center;justify-content:center;gap:8px}
+.micbtn.listening{background:var(--red);border-color:var(--red)}
+.inputrow{display:flex;gap:8px}.inputrow .field{flex:1;min-width:0}
+@media(max-width:750px){.widelabel{display:none}#teachView:not(.lesson) #kTeacher{order:2}}
 </style>
 </head>
 <body>
@@ -262,6 +269,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
   </div>
   <nav class="nav hidden" data-modenav="learn" aria-label="Learning">
     <button data-tab="learn">Learn</button>
+    <button data-tab="teach">Teach<span class="widelabel"> me</span></button>
     <button data-tab="practice">Practice</button>
     <button data-tab="quiz">Quiz</button>
     <button data-tab="tests">Tests</button>
@@ -470,6 +478,46 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
     </section>
   </div>
 </div>
+<!-- ================= TEACH ME ================= -->
+<div id="teachView" class="hidden">
+  <div class="grid">
+    <section class="panel" id="kTeacher">
+      <div class="panelhead"><h3>Finn, your signing teacher</h3><span class="pill" id="kStatus">Ready</span></div>
+      <div class="bubble" id="kBubble" aria-live="polite">Hi, I'm Finn. Tell me a word and I'll teach you how to fingerspell it, one letter at a time.</div>
+      <div class="stage" id="kStage"></div>
+      <div class="wordboxes" id="kStrip"></div>
+      <div class="actions"><button class="btn alt" id="kBack" disabled>← Back</button><button class="btn alt" id="kRepeat" disabled>Repeat</button><button class="btn alt" id="kNext" disabled>Next →</button><button class="btn ghost" id="kStop" disabled>Stop</button></div>
+      <div class="actions"><label class="toggle"><input type="checkbox" id="kVoice" checked> Finn talks out loud</label></div>
+    </section>
+    <section class="panel">
+      <div class="panelhead"><h3>Teach me a word</h3></div>
+      <button class="btn full micbtn" id="kMic"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span id="kMicLabel">Say “Teach me hello”</span></button>
+      <p class="small" id="kMicNote" style="margin:8px 0 0"></p>
+      <label for="kInput" class="fieldlabel" style="margin-top:14px">Or type a word</label>
+      <div class="inputrow"><input id="kInput" class="field" maxlength="40" placeholder="e.g. hello" autocomplete="off"><button class="btn" id="kGo">Teach me</button></div>
+      <p class="fieldlabel" style="margin-top:14px">Try one</p>
+      <div class="examples"><button class="btn ghost" data-teach="hi">HI</button><button class="btn ghost" data-teach="mom">MOM</button><button class="btn ghost" data-teach="love">LOVE</button><button class="btn ghost" data-teach="hello">HELLO</button><button class="btn ghost" data-teach="friend">FRIEND</button><button class="btn ghost" data-teach="thank you">THANK YOU</button></div>
+      <div id="kTurn" class="hidden">
+        <div class="panelhead" style="margin-top:20px"><h3>Your turn: <span id="kTurnWord"></span></h3><span class="pill" id="kCamTag">Camera off</span></div>
+        <div class="camera">
+          <video id="kVideo" autoplay muted playsinline></video><canvas id="kCanvas"></canvas>
+          <div id="kEmpty" class="placeholder"><b>Camera is off</b>Turn on your camera and fingerspell the word.</div>
+          <div class="camstatus" id="kOverlay">Watching</div>
+        </div>
+        <div class="actions"><button class="btn full" id="kStartBtn">Turn on camera</button><button class="btn alt" id="kStopBtn" disabled>Stop</button></div>
+        <div class="wordboxes" id="kBoxes"></div>
+        <div class="guess">
+          <div class="handicon" id="kGuessPic"></div>
+          <div><div class="small" id="kGuessLabel">Camera off</div><div class="guessletter" id="kGuess"></div></div>
+          <div class="guessbar"><div class="track"><div class="fill" id="kHold"></div></div></div>
+        </div>
+        <div id="kFeedback" class="feedback" role="status" aria-live="polite"></div>
+        <div class="actions"><button class="btn alt hidden" id="kMark" title="T, N and M are hard for webcams to see">The camera can't see this letter</button><button class="btn ghost" id="kRestart">Start the word again</button></div>
+      </div>
+      <div class="tip">Finn teaches fingerspelling: spelling a word with the 26 hand letters. Most everyday words also have their own whole-word ASL sign, which Finn doesn't teach yet. The voice button uses your browser's speech recognition.</div>
+    </section>
+  </div>
+</div>
 
 <footer class="footer">
   <p style="margin:0">SignSense is a student-built translator and trainer for the ASL fingerspelling alphabet. It finds 21 points on your hand with MediaPipe Hands and checks each letter with simple rules, so it can make mistakes, especially with T, N and M. ASL also uses movement, facial expression, grammar and context, which SignSense doesn't check. For real fluency, learn from Deaf teachers and the Deaf community.</p>
@@ -479,6 +527,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
       <h4>Your account and progress</h4>Usernames, progress and settings are stored only in this browser (localStorage). There is no server and no email. Passwords are never stored: only a scrambled hash of each one. Clearing your browser's site data deletes everything.
       <h4>Outside services</h4>The page loads the MediaPipe hand tracker from cdn.jsdelivr.net and its font from Google Fonts. Those services can see that your browser asked for those files, as with any website. SignSense has no ads, analytics or tracking.
       <h4>Photos</h4>Photos you choose in Text to Sign are read by Tesseract inside your browser and are never uploaded. The first time, the text reader and its language data download from cdn.jsdelivr.net.
+      <h4>Voice</h4>When you press the microphone button in Teach me, your browser's speech recognition turns what you say into text. Chrome and Safari may send that audio to Google's or Apple's servers to do this. Nothing is recorded by SignSense. Finn's voice is made by your browser.
       <h4>Translation</h4>When you pick a language other than English, Chrome's built-in translator is used if your browser has one, and the text stays on your computer. Otherwise the text is sent to the free MyMemory translation service (mymemory.translated.net) to be translated. Don't translate private information.
       <h4>Kids</h4>SignSense doesn't ask for names, emails or ages. Pick a username that isn't your real name if you like.
     </div></details>
@@ -987,6 +1036,47 @@ function createAccounts(store,key='signsense-users'){
 }
 /* ===================== ACCOUNTS-END ===================== */
 
+/* ===================== TEACHER-START =====================
+   "Teach me a word": Finn, the signing hand, teaches a word letter by
+   letter (tested in tests/teacher.test.js). The lesson is a fixed script,
+   not a chatbot: an intro, one step per letter, the whole word slowly,
+   then your turn on the camera. */
+// "Teach me hello", "how do you sign thank you", or just "hello" → "HELLO".
+// Returns '' when there is no word to teach.
+function parseTeachRequest(said){
+  let s=String(said||'').toLowerCase().replace(/[’']/g,'').replace(/[^a-z\s]/g,' ').replace(/\s+/g,' ').trim();
+  const V='(?:sign|spell|fingerspell|say)';
+  const ask=new RegExp('^(?:(?:hey|hi|ok|okay)\\s+)?(?:finn\\s+)?(?:(?:can|could|will)\\s+you\\s+|please\\s+)?'+
+    '(?:teach\\s+me|show\\s+me|help\\s+me|how\\s+(?:do|can|would|should)\\s+(?:you|i)|how\\s+to|'+V+')(?=\\s|$)'+
+    '(?:\\s+(?:how\\s+)?(?:to\\s+)?'+V+'(?=\\s|$))?(?:\\s+the\\s+(?:word|name|letters?))?(?:\\s+(?:word|name))?(?:\\s+for)?(?:\\s+my\\s+name(?:\\s+is)?)?\\s*');
+  s=s.replace(ask,'').replace(/^my\s+name\s+is\s+/,'').replace(/\s+(?:please|in\s+(?:asl|sign\s+language|sign))$/,'').replace(/\s+please$/,'').trim();
+  const words=s.split(' ').filter(Boolean).slice(0,3);
+  let out='';
+  for(const w of words){if((out+w).replace(/ /g,'').length>20)break;out+=(out?' ':'')+w}
+  return out.toUpperCase(); // '' if the first word alone is over 20 letters
+}
+// The lesson steps for a word. descOf(L) gives how to make letter L.
+// `say` is shown in Finn's speech bubble; `voice` is read aloud (words in
+// lower case, so the voice says "hello" instead of spelling H-E-L-L-O).
+function teachScript(word,descOf){
+  const W=String(word||'').toUpperCase().replace(/[^A-Z ]/g,'').replace(/\s+/g,' ').trim();
+  const letters=W.replace(/ /g,'').split('').filter(Boolean);
+  if(!letters.length)return[];
+  const spelled=W.split(' ').map(w=>w.split('').join(', ')).join(' — then ');
+  const w=W.toLowerCase(),steps=[];
+  steps.push({kind:'intro',word:W,say:`Let's learn ${W}. It's spelled ${spelled}. Watch my hand first.`,voice:`Let's learn "${w}". It's spelled ${spelled.replace(' — then ',', then ')}. Watch my hand first.`});
+  letters.forEach((L,i)=>{
+    const again=i>0&&letters[i-1]===L;
+    const n=`Letter ${i+1} of ${letters.length}: ${L}.`;
+    const how=again?`It's ${L} again. Make the same shape, then bounce or slide your hand a little to the side so people can see it's a double letter.`:descOf(L);
+    steps.push({kind:'letter',ch:L,i,again,say:`${n} ${how}`,voice:`${L}. ${how}`});
+  });
+  steps.push({kind:'together',word:W,say:`Now all together, slowly: ${W}.`,voice:`Now all together, slowly: "${w}".`});
+  steps.push({kind:'turn',word:W,say:`Your turn! Turn on your camera and fingerspell ${W}. Hold each letter still for about a second.`,voice:`Your turn! Turn on your camera and fingerspell "${w}". Hold each letter still for about a second.`});
+  return steps;
+}
+/* ===================== TEACHER-END ===================== */
+
 
 /* ---------- app state ---------- */
 const $=id=>document.getElementById(id),dateKey=()=>new Date().toLocaleDateString('en-CA');
@@ -1100,9 +1190,9 @@ function nextLessonIndex(){const d=doneSet();const i=LESSONS.findIndex((l,i)=>le
 const label=l=>l.type==='word'?l.word:l.id;
 
 /* ---------- navigation ---------- */
-const TITLES={tests:['Tests','Six levels, from single letters to a short conversation. Pass one to unlock the next.'],learn:['Learn','Pick up where you left off, or choose any open lesson.'],practice:['Practice','Hold your hand up to the camera and copy the letter shape.'],quiz:['Quiz','Six questions, no camera needed. A wrong answer costs a heart.'],progress:['Progress','Your letters, streak and badges so far.'],signtext:['Sign to text','Fingerspell one letter at a time. Drop your hand for a second to add a space.'],textsign:['Text to sign','Type a word and the hand spells it out, letter by letter.']};
+const TITLES={tests:['Tests','Six levels, from single letters to a short conversation. Pass one to unlock the next.'],learn:['Learn','Pick up where you left off, or choose any open lesson.'],practice:['Practice','Hold your hand up to the camera and copy the letter shape.'],quiz:['Quiz','Six questions, no camera needed. A wrong answer costs a heart.'],progress:['Progress','Your letters, streak and badges so far.'],signtext:['Sign to text','Fingerspell one letter at a time. Drop your hand for a second to add a space.'],textsign:['Text to sign','Type a word and the hand spells it out, letter by letter.'],teach:['Teach me a word','Say or type a word, and Finn teaches you how to fingerspell it.']};
 // Two modes: Learn (the lessons) and Translate (the translator tools).
-const MODE_OF={learn:'learn',practice:'learn',quiz:'learn',tests:'learn',progress:'learn',signtext:'translate',textsign:'translate'};
+const MODE_OF={learn:'learn',teach:'learn',practice:'learn',quiz:'learn',tests:'learn',progress:'learn',signtext:'translate',textsign:'translate'};
 const lastTab={learn:'learn',translate:'signtext'};
 function setTab(t){
   // Turn the camera off when leaving the screen that is using it.
@@ -1110,6 +1200,7 @@ function setTab(t){
   if(running&&cam&&t!==cam.tab&&!(cam===CAMS.practice&&['learn','quiz','progress'].includes(t)))stop();
   if(t!=='tests')xPlayer.pause();
   if(t!=='textsign')pausePlayer();
+  if(t!=='teach')window.kLeave?.();
   tab=t;const mode=MODE_OF[t];lastTab[mode]=t;
   Object.keys(MODE_OF).forEach(n=>{$(n+'View').classList.toggle('hidden',n!==t);document.querySelector(`[data-tab="${n}"]`).classList.toggle('active',n===t)});
   document.querySelectorAll('[data-modenav]').forEach(n=>n.classList.toggle('hidden',n.dataset.modenav!==mode));
@@ -1825,6 +1916,147 @@ $('unlockBtn').onclick=()=>{state.unlockAll=true;persist();render();toast('All u
 $('resetBtn').onclick=()=>{if(!confirm('Reset all SignSense progress in this browser?'))return;state={done:[],self:[],xp:0,streak:0,lastDay:'',dailyDay:dateKey(),dailyCount:0,quizToday:0,hearts:5,heartsDay:dateKey(),perfectQuiz:false,unlockAll:false,tests:{},tone:state.tone};try{localStorage.removeItem('signsense-done');localStorage.removeItem('signsense-xp')}catch(e){}sessionDone.clear();persist();choose(0);toast('Progress reset')};
 document.addEventListener('keydown',e=>{if(tab!=='practice'||e.target.matches('input,textarea'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
 window.addEventListener('pagehide',()=>stream?.getTracks().forEach(t=>t.stop()));
+/* ---------- Teach me a word (Finn) ---------- */
+const K={steps:[],i:-1,word:'',token:0,speed:'normal',turn:false,timer:0};
+const kPlayer=createSignPlayer({stage:'kStage',speed:()=>K.speed});
+const kReader=createSignReader(),kTyper=kReader.typer;
+const canSpeak='speechSynthesis' in window;
+function kFeedback(msg,type){const el=$('kFeedback'),cls='feedback '+(type||'');if(el.textContent===msg&&el.className===cls)return;el.textContent=msg;el.className=cls}
+function kStill(L){$('kStage').innerHTML=stageSVG(HAND_POSES[L],viewOf(L),at(centerOf(L)),L,null)}
+function kStrip(){
+  const s=K.steps[K.i],cur=s?.kind==='letter'?s.i:-1,all=s&&s.kind!=='letter'&&s.kind!=='intro';let n=0;
+  $('kStrip').innerHTML=K.word.split('').map(c=>{if(c===' ')return'<span class="space"></span>';const j=n++;return`<span class="${all||j<cur?'done':''} ${j===cur?'now':''}">${c}</span>`}).join('');
+}
+// Say a line out loud; `done` runs when it finishes (or after a reading-time guess).
+function kSay(text,done){
+  clearTimeout(K.timer);const tok=K.token;let fired=false;
+  const fin=()=>{if(fired||tok!==K.token)return;fired=true;clearTimeout(K.timer);done()};
+  if(canSpeak)speechSynthesis.cancel();
+  if(!canSpeak||!$('kVoice').checked){K.timer=setTimeout(fin,1400+text.length*55);return}
+  const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.95;u.onend=fin;u.onerror=fin;
+  speechSynthesis.speak(u);
+  K.timer=setTimeout(fin,4000+text.length*110); // in case the voice never reports that it ended
+}
+function kButtons(){
+  const on=K.steps.length>0;
+  $('kBack').disabled=!on||K.i<=0;$('kRepeat').disabled=!on;$('kNext').disabled=!on||K.i>=K.steps.length-1;$('kStop').disabled=!on;
+  $('teachView').classList.toggle('lesson',on);
+  $('kStatus').textContent=!on?'Ready':K.steps[K.i].kind==='turn'?'Your turn':`Teaching ${K.word}`;
+}
+function kStep(i){
+  K.i=i;const tok=++K.token,s=K.steps[i];
+  kPlayer.stop();kStrip();kButtons();
+  $('kBubble').innerHTML=esc(s.say).replace(new RegExp(`\\b${K.word.replace(/ /g,'\\s')}\\b`),'<b>$&</b>');
+  let animDone=false,talkDone=false;const t0=performance.now();
+  const next=()=>{
+    if(tok!==K.token||!animDone||!talkDone)return;
+    if(s.kind==='turn'||i>=K.steps.length-1)return;
+    const wait=Math.max(600,(s.kind==='letter'?2400:900)-(performance.now()-t0));
+    K.timer=setTimeout(()=>{if(tok===K.token)kStep(i+1)},wait);
+  };
+  const anim=()=>{animDone=true;next()};
+  if(s.kind==='intro'){K.speed='normal';if(!kPlayer.play(K.word,anim))anim()}
+  else if(s.kind==='together'){K.speed='slow';if(!kPlayer.play(K.word,anim))anim()}
+  else if(s.kind==='letter'){
+    K.speed='slow';
+    const showIt=()=>{kStill(s.ch);anim()};
+    if(s.again)kPlayer.play(s.ch+s.ch,showIt);           // shows the double-letter bounce
+    else if(LETTERS[s.ch].motion)kPlayer.play(s.ch,()=>{kPlayer.play(s.ch,showIt)}); // draw J/Z twice
+    else showIt();
+  }
+  else{kPlayer.rest();anim();kTurnStart()}
+  kSay(s.voice,()=>{talkDone=true;next()});
+  if(window.matchMedia('(max-width:750px)').matches&&s.kind==='intro')$('kTeacher').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function teachWord(raw){
+  const word=parseTeachRequest(raw);
+  if(!word){
+    const long=String(raw||'').replace(/[^a-z]/gi,'').length>20;
+    $('kBubble').textContent=long?'That word is a bit long for me. Try one with 20 letters or fewer.':'I didn’t catch a word to teach. Try “Teach me hello”.';
+    return false;
+  }
+  kStopLesson(false);kTurnEnd();
+  K.word=word;K.steps=teachScript(word,L=>LETTERS[L].desc);$('kInput').value=word.toLowerCase();
+  kStep(0);return true;
+}
+function kStopLesson(resetBubble=true){
+  K.token++;clearTimeout(K.timer);if(canSpeak)speechSynthesis.cancel();kPlayer.stop();
+  if(resetBubble){K.steps=[];K.i=-1;K.word='';$('kStrip').innerHTML='';$('kBubble').textContent='Okay, stopped. Tell me another word whenever you’re ready.';kTurnEnd()}
+  kButtons();
+}
+// Your turn: sign the word back to the camera.
+function kTurnStart(){
+  K.turn=true;kTyper.clear();kReader.reset();
+  $('kTurnWord').textContent=K.word;show('kTurn',true);kBoxes();
+  kFeedback(running&&cam===CAMS.teach?'Show your hand and start with '+onlyLetters(K.word)[0]+'.':'Turn on your camera, then sign the first letter.','');
+  if(window.matchMedia('(max-width:750px)').matches)setTimeout(()=>$('kTurn').scrollIntoView({behavior:'smooth',block:'start'}),1500);
+}
+function kTurnEnd(){K.turn=false;show('kTurn',false);if(running&&cam===CAMS.teach)stop()}
+function kBoxes(){
+  const want=onlyLetters(K.word),got=onlyLetters(kTyper.text).length;let n=0;
+  $('kBoxes').innerHTML=K.word.split('').map(c=>{if(c===' ')return'<span class="space"></span>';const j=n++;return`<span class="${j<got?'done':''} ${j===got?'now':''}">${j<got?c:''}</span>`}).join('');
+  const next=want[got];show('kMark',!!next&&!!LETTERS[next]?.beta);
+}
+function kCheck(c){
+  K.msgUntil=performance.now()+1800; // keep this message up for a moment
+  const res=signProgress(K.word,kTyper.text);
+  if(res.status==='done'){
+    kBoxes();K.turn=false;sound();state.xp+=5;bumpDaily();persist();render();
+    kFeedback(`You signed ${K.word}! +5 XP`,'good');
+    $('kBubble').innerHTML=`Great job! You fingerspelled <b>${esc(K.word)}</b>. Want to learn another word?`;
+    if(canSpeak&&$('kVoice').checked){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('Great job! You did it.');u.lang='en-US';speechSynthesis.speak(u)}
+    $('kStatus').textContent='Done';return;
+  }
+  if(res.status==='wrong'){kTyper.backspace();kFeedback(`That looked like ${c}. The next letter is ${res.expected}: ${LETTERS[res.expected].cue}`,'warn');kStill(res.expected)}
+  else{ping();kFeedback(`${c} is right. Next: ${res.expected}.`,'good')}
+  kBoxes();
+}
+function teachResults(results){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(const p of(results.multiHandLandmarks||[]))drawHand(p);
+  kReader.trails().forEach(tr=>drawTrail(tr));
+  if(!K.turn)return;
+  const lm=results.multiHandLandmarks?.[0];
+  const out=kReader.frame(lm,performance.now(),false);out.noHand=!lm;
+  const [label,msg,type]=readerStatus(out,kTyper,false);
+  showGuess(out.r,out.det,label,'k');
+  if(out.r.committed)return kCheck(out.r.committed);
+  if(performance.now()<(K.msgUntil||0))return;
+  if(!out.noHand||!$('kFeedback').classList.contains('warn'))kFeedback(msg,type);
+}
+CAMS.teach={tab:'teach',video:'kVideo',canvas:'kCanvas',empty:'kEmpty',overlay:'kOverlay',tag:'kCamTag',startBtn:'kStartBtn',stopBtn:'kStopBtn',
+  onResults:teachResults,msg:(m,t)=>kFeedback(m,t),onStop:()=>{kReader.reset();showGuess(null,null,'Camera off','k')}};
+$('kStartBtn').onclick=()=>start('teach');$('kStopBtn').onclick=stop;
+$('kMark').onclick=()=>{if(!K.turn)return;const c=onlyLetters(K.word)[onlyLetters(kTyper.text).length];if(!c)return;kTyper.add(c);kCheck(c)};
+$('kRestart').onclick=()=>{if(!K.word)return;K.turn=true;kTyper.clear();kReader.reset();kBoxes();$('kStatus').textContent='Your turn';kFeedback('Start again from the first letter.','')};
+$('kGo').onclick=()=>teachWord($('kInput').value);
+$('kInput').onkeydown=e=>{if(e.key==='Enter')teachWord($('kInput').value)};
+$('kBack').onclick=()=>{if(K.i>0){if(K.turn)kTurnEnd();kStep(K.i-1)}};
+$('kNext').onclick=()=>{if(K.i<K.steps.length-1)kStep(K.i+1)};
+$('kRepeat').onclick=()=>{if(K.steps.length)kStep(K.i)};
+$('kStop').onclick=()=>kStopLesson();
+$('kVoice').onchange=()=>{if(!$('kVoice').checked&&canSpeak)speechSynthesis.cancel()};
+document.querySelectorAll('[data-teach]').forEach(b=>b.onclick=()=>teachWord(b.dataset.teach));
+if(!canSpeak){$('kVoice').checked=false;$('kVoice').disabled=true}
+// Voice: "Teach me hello". Uses the browser's speech recognition when it has one.
+const SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
+let kRec=null;
+if(!SpeechRec){$('kMic').disabled=true;$('kMicLabel').textContent='Voice not available here';$('kMicNote').textContent='This browser can’t listen for words. Type a word below instead, or open SignSense in Chrome or Safari.'}
+$('kMic').onclick=()=>{
+  if(!SpeechRec)return;
+  if(kRec){kRec.stop();return}
+  if(canSpeak)speechSynthesis.cancel();
+  const rec=new SpeechRec();kRec=rec;rec.lang='en-US';rec.interimResults=true;rec.maxAlternatives=1;
+  let heard='';
+  $('kMic').classList.add('listening');$('kMicLabel').textContent='Listening… tap to stop';$('kMicNote').textContent='Say “Teach me” and a word.';
+  rec.onresult=e=>{heard=[...e.results].map(r=>r[0].transcript).join(' ');$('kMicNote').textContent='Heard: “'+heard+'”'};
+  rec.onerror=e=>{$('kMicNote').textContent=e.error==='not-allowed'||e.error==='service-not-allowed'?'The microphone is blocked. Allow it in your browser settings, or type a word below.':e.error==='no-speech'?'I didn’t hear anything. Tap the button and try again.':'Voice didn’t work ('+e.error+'). Type a word below instead.'};
+  rec.onend=()=>{kRec=null;$('kMic').classList.remove('listening');$('kMicLabel').textContent='Say “Teach me hello”';if(heard)teachWord(heard)};
+  try{rec.start()}catch(e){kRec=null;$('kMic').classList.remove('listening');$('kMicNote').textContent='Voice didn’t start. Type a word below instead.'}
+};
+kPlayer.rest();
+function kLeave(){if(K.steps.length&&K.steps[K.i]?.kind!=='turn')kStopLesson();else{K.token++;clearTimeout(K.timer);if(canSpeak)speechSynthesis.cancel()}}
+window.kLeave=kLeave;
 /* ---------- accounts ---------- */
 const safeStore={getItem:k=>{try{return localStorage.getItem(k)}catch(e){return null}},setItem:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 const accounts=createAccounts(safeStore);
