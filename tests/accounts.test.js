@@ -31,6 +31,10 @@ function check(name,ok){console.log((ok?'ok  ':'FAIL')+'  '+name);if(!ok)fails++
   await acc.signUp('Maya','password1');
   const u=JSON.parse(store.raw['signsense-users']);
   check('two people with the same-length password get different hashes',u.anish.hash!==u.maya.hash&&u.anish.salt!==u.maya.salt);
+  check('deleting a profile needs the right password',!!(await acc.remove('Maya','wrongpass')).error&&acc.nameOf('maya')==='Maya');
+  check('deleting a profile with its password removes it for good',(await acc.remove('maya','password1')).removed==='Maya'&&acc.nameOf('Maya')===null&&!!(await acc.logIn('Maya','password1')).error);
+  check('deleting one profile keeps the others',acc.nameOf('anish')==='Anish');
+  check('deleting a profile that does not exist fails safely',!!(await acc.remove('ghost','whatever')).error);
   check('a damaged saved list does not crash',!A.createAccounts({getItem:()=>'{not json',setItem(){}}).any());
 
   if(fails){console.error(`FAILED (${fails})`);process.exit(1)}else console.log('ALL ACCOUNT TESTS PASSED');

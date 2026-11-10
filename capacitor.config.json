@@ -1,0 +1,9 @@
+{
+  "appId": "io.github.anish7maturu.signsense",
+  "appName": "SignSense",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#faf8f3"
+  }
+}

@@ -1,11 +1,36 @@
 {
   "name": "signsenseasl",
   "version": "1.0.0",
-  "description": "Learn the ASL fingerspelling alphabet with live webcam feedback",
+  "description": "Translate ASL fingerspelling with your camera and learn it step by step",
   "private": true,
   "scripts": {
     "start": "python3 -m http.server 8000",
-    "test": "node tests/classifier.test.js && node tests/translator.test.js && node tests/accounts.test.js && node tests/levels.test.js && node tests/languages.test.js && node tests/pwa.test.js && node tests/teacher.test.js"
+    "test": "node tests/classifier.test.js && node tests/translator.test.js && node tests/accounts.test.js && node tests/levels.test.js && node tests/languages.test.js && node tests/pwa.test.js && node tests/teacher.test.js && node tests/app.test.js",
+    "build:app": "node tools/build-app.js",
+    "ios": "node tools/build-app.js && npx cap sync ios && npx cap open ios"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@capacitor/cli": "^7.6.10",
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@mediapipe/hands": "^0.4.1675469240",
+    "@tesseract.js-data/ara": "^1.0.0",
+    "@tesseract.js-data/chi_sim": "^1.0.0",
+    "@tesseract.js-data/deu": "^1.0.0",
+    "@tesseract.js-data/eng": "^1.0.0",
+    "@tesseract.js-data/fra": "^1.0.0",
+    "@tesseract.js-data/hin": "^1.0.0",
+    "@tesseract.js-data/ita": "^1.0.0",
+    "@tesseract.js-data/kor": "^1.0.0",
+    "@tesseract.js-data/por": "^1.0.0",
+    "@tesseract.js-data/spa": "^1.0.0",
+    "@tesseract.js-data/tgl": "^1.0.0",
+    "@tesseract.js-data/vie": "^1.0.0",
+    "tesseract.js": "^5.1.1"
+  },
+  "dependencies": {
+    "@capacitor-community/speech-recognition": "^7.0.1",
+    "@capacitor/core": "^7.6.10",
+    "@capacitor/ios": "^7.6.10"
+  }
 }
