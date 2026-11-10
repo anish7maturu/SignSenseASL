@@ -10,7 +10,7 @@ The app has two modes, switched at the top of the sidebar: **Translate** (where 
 
 ### Profiles
 
-Sign up with a username and password (no email), or continue as a guest. Each profile keeps its own XP, streak and progress, so several people can share one computer. Profiles are saved **in this browser only**: they don't follow you to another computer, and clearing the browser's data removes them. Passwords are never stored, only a salted PBKDF2 hash of each one.
+Sign up with a username and password (no email), or continue as a guest. You can delete your profile and its progress at any time on the Progress page. Each profile keeps its own XP, streak and progress, so several people can share one computer. Profiles are saved **in this browser only**: they don't follow you to another computer, and clearing the browser's data removes them. Passwords are never stored, only a salted PBKDF2 hash of each one.
 
 ### Translate mode
 
@@ -47,6 +47,10 @@ SignSense is a progressive web app, so it can be installed and opened like a nor
 - **iPhone or iPad:** open it in Safari, tap **Share**, then **Add to Home Screen**.
 
 After the first visit it also works without internet (translation still needs a connection). Installing needs the app's public https link, such as GitHub Pages or Netlify.
+
+### iPhone app
+
+The same code is packaged as an iPhone app with [Capacitor](https://capacitorjs.com). The app bundles every library, all 12 text-reading languages and Finn's voice, so it downloads no code and works offline; it uses Apple's speech recognition for the voice button. See [`appstore/SETUP.md`](appstore/SETUP.md) to build it on a Mac, and [`appstore/listing.md`](appstore/listing.md) for the App Store text. Privacy policy: [privacy.html](privacy.html).
 
 ## How it works
 
@@ -90,7 +94,7 @@ In GitHub Codespaces, run the same command and open the forwarded port 8000.
 `tests/accounts.test.js` checks sign-up rules, that logging in needs the right password, that capitals in a username don't matter, and that passwords themselves are never saved.
 
 ```bash
-npm test   # runs all seven test files
+npm test   # runs all eight test files
 ```
 
 ## Limitations

@@ -253,6 +253,7 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
 .bubble{position:relative;background:#fbf6ec;border:1px solid #ecd9b4;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:17px;line-height:1.45;min-height:52px}
 .bubble::after{content:'';position:absolute;left:28px;bottom:-8px;width:14px;height:14px;background:#fbf6ec;border-right:1px solid #ecd9b4;border-bottom:1px solid #ecd9b4;transform:rotate(45deg)}
 .bubble b{color:var(--accent)}
+.btn.danger{background:var(--red);color:#fff;box-shadow:0 4px 0 #7d2a20}
 .micbtn{display:flex;align-items:center;justify-content:center;gap:8px}
 .micbtn.listening{background:var(--red);border-color:var(--red)}
 .inputrow{display:flex;gap:8px}.inputrow .field{flex:1;min-width:0}
@@ -363,6 +364,15 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
     <p style="color:var(--muted);font-size:13px;line-height:1.6">Units unlock as you go. Teachers and returning signers can open everything at once.</p>
     <p style="color:var(--muted);font-size:13px;margin:16px 0 6px">Hand drawing skin tone</p><div class="tones" id="tonePicker"></div>
     <div class="actions"><button class="btn alt" id="unlockBtn">Unlock all units</button><button class="btn ghost" id="resetBtn">Reset progress</button></div>
+  </section>
+  <section class="section panel hidden" id="deleteBox"><h3>Delete your profile</h3>
+    <p style="color:var(--muted);font-size:13px;line-height:1.6">This removes your username, password and all of your progress from this device. It can't be undone.</p>
+    <div id="deleteConfirm" class="hidden">
+      <label class="fieldlabel" for="deletePass" style="margin-top:12px">Type your password to confirm</label>
+      <div class="inputrow"><input id="deletePass" type="password" class="field" autocomplete="current-password"><button class="btn danger" id="deleteGo">Delete forever</button></div>
+      <p class="small" id="deleteError" style="color:var(--red);margin:8px 0 0" role="alert"></p>
+    </div>
+    <div class="actions"><button class="btn ghost" id="deleteBtn">Delete my profile</button></div>
   </section>
 </div>
 
@@ -523,11 +533,12 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
   <p style="margin:0">SignSense is a student-built translator and trainer for the ASL fingerspelling alphabet. It finds 21 points on your hand with MediaPipe Hands and checks each letter with simple rules, so it can make mistakes, especially with T, N and M. ASL also uses movement, facial expression, grammar and context, which SignSense doesn't check. For real fluency, learn from Deaf teachers and the Deaf community.</p>
   <div class="legal">
     <details><summary>Privacy</summary><div>
+      <p style="margin:0 0 8px">Full policy: <a href="privacy.html">SignSense privacy policy</a></p>
       <h4>Your camera</h4>Camera video is processed inside your browser and is never recorded, saved or sent anywhere.
-      <h4>Your account and progress</h4>Usernames, progress and settings are stored only in this browser (localStorage). There is no server and no email. Passwords are never stored: only a scrambled hash of each one. Clearing your browser's site data deletes everything.
-      <h4>Outside services</h4>The page loads the MediaPipe hand tracker from cdn.jsdelivr.net and its font from Google Fonts. Those services can see that your browser asked for those files, as with any website. SignSense has no ads, analytics or tracking.
-      <h4>Photos</h4>Photos you choose in Text to Sign are read by Tesseract inside your browser and are never uploaded. The first time, the text reader and its language data download from cdn.jsdelivr.net.
-      <h4>Voice</h4>When you press the microphone button in Teach me, your browser's speech recognition turns what you say into text. Chrome and Safari may send that audio to Google's or Apple's servers to do this. Nothing is recorded by SignSense. Finn's voice is a set of sound files that come with the app (made with the Kokoro text-to-speech model); if they can't play, your browser's own voice reads the line.
+      <h4>Your account and progress</h4>Usernames, progress and settings are stored only on this device (localStorage). There is no server and no email. Passwords are never stored: only a scrambled hash of each one. You can delete your profile and its progress at any time on the Progress page (Delete my profile). Clearing your browser's site data, or deleting the app, also deletes everything.
+      <h4>Outside services</h4>The website loads the MediaPipe hand tracker from cdn.jsdelivr.net and its font from Google Fonts. Those services can see that your browser asked for those files, as with any website. The iPhone app has these files built in and doesn't download them. SignSense has no ads, analytics or tracking.
+      <h4>Photos</h4>Photos you choose in Text to Sign are read by Tesseract inside your browser and are never uploaded. On the website, the text reader and its language data download from cdn.jsdelivr.net the first time; the iPhone app has them built in.
+      <h4>Voice</h4>When you press the microphone button in Teach me, your browser's speech recognition turns what you say into text. Chrome and Safari (and Apple's speech recognition in the iPhone app) may send that audio to Google's or Apple's servers to do this. Nothing is recorded by SignSense. Finn's voice is a set of sound files that come with the app (made with the Kokoro text-to-speech model); if they can't play, your browser's own voice reads the line.
       <h4>Translation</h4>When you pick a language other than English, Chrome's built-in translator is used if your browser has one, and the text stays on your computer. Otherwise the text is sent to the free MyMemory translation service (mymemory.translated.net) to be translated. Don't translate private information.
       <h4>Kids</h4>SignSense doesn't ask for names, emails or ages. Pick a username that isn't your real name if you like.
     </div></details>
@@ -565,7 +576,9 @@ button:focus-visible{outline:3px solid #c27c0e;outline-offset:3px}
 </div>
 <div id="toast" class="toast hidden" role="status"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<!-- LIBS: the iPhone app build (tools/build-app.js) points these at copies bundled inside the app -->
+<script>const LIBS={mediapipe:'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/',tesseract:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',tesseractOptions:{}};</script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js"></script>
 <script>
 /* =====================================================================
    LESSON DATA
@@ -1029,6 +1042,14 @@ function createAccounts(store,key='signsense-users'){
       const u=load()[userId(name)];
       if(!u||await hashPassword(String(pw||''),u.salt)!==u.hash)return{error:'Wrong username or password.'};
       return{user:u.name};
+    },
+    // Deletes a profile for good. The password is checked first, so nobody
+    // else on a shared device can delete your profile.
+    async remove(name,pw){
+      const users=load(),id=userId(name),u=users[id];
+      if(!u||await hashPassword(String(pw||''),u.salt)!==u.hash)return{error:'That password isn\u2019t right.'};
+      delete users[id];store.setItem(key,JSON.stringify(users));
+      return{removed:u.name};
     },
     nameOf:n=>load()[userId(n)]?.name||null,
     any:()=>Object.keys(load()).length>0
@@ -1498,7 +1519,7 @@ async function start(name){
   try{
     if(!navigator.mediaDevices?.getUserMedia)throw Error('Use localhost or HTTPS in Chrome to allow the camera.');
     if(typeof Hands==='undefined')throw Error('MediaPipe failed to load. Check internet access and refresh.');
-    hands=new Hands({locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+    hands=new Hands({locateFile:file=>LIBS.mediapipe+file});
     hands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.65,minTrackingConfidence:.55});
     hands.onResults(r=>{if(cam===c)c.onResults(r)});
     stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:'user',width:{ideal:960},height:{ideal:720}}});
@@ -1676,7 +1697,7 @@ async function playText(){
 
 // Photo to signs: Tesseract reads the text inside the browser (the photo is
 // never uploaded). The reader is only downloaded the first time it's used.
-const TESSERACT_URL='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+const TESSERACT_URL=LIBS.tesseract;
 let tesseractReady=null;
 function loadTesseract(){
   if(window.Tesseract)return Promise.resolve();
@@ -1692,7 +1713,7 @@ async function readPhoto(file){
   const url=URL.createObjectURL(file),img=$('tsPhotoPreview');img.src=url;img.classList.remove('hidden');
   try{
     say('Getting the text reader ready…');await loadTesseract();
-    const {data}=await Tesseract.recognize(file,lang.ocr,{logger:m=>{
+    const {data}=await Tesseract.recognize(file,lang.ocr,{...LIBS.tesseractOptions,logger:m=>{
       if(m.status==='recognizing text')say(`Reading the ${lang.name} text… ${Math.round(m.progress*100)}%`);
       else if(/load/.test(m.status))say(`Getting the ${lang.name} text reader ready…`);
     }});
@@ -2100,9 +2121,29 @@ $('kVoice').onchange=()=>{if(!$('kVoice').checked)stopFinn()};
 document.querySelectorAll('[data-teach]').forEach(b=>b.onclick=()=>{unlockFinn();teachWord(b.dataset.teach)});
 // Voice: "Teach me hello". Uses the browser's speech recognition when it has one.
 const SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
-let kRec=null;
-if(!SpeechRec){$('kMic').disabled=true;$('kMicLabel').textContent='Voice not available here';$('kMicNote').textContent='This browser can’t listen for words. Type a word below instead, or open SignSense in Chrome or Safari.'}
+// In the iPhone app, Apple's speech recognition is used through a Capacitor plugin.
+const NativeSpeech=window.Capacitor?.isNativePlatform?.()?window.Capacitor.Plugins?.SpeechRecognition:null;
+let kRec=null,kNativeEnd=null;
+function kListening(on){$('kMic').classList.toggle('listening',on);$('kMicLabel').textContent=on?'Listening… tap to stop':'Say “Teach me hello”';if(on)$('kMicNote').textContent='Say “Teach me” and a word.'}
+async function kNativeListen(){
+  if(kNativeEnd)return kNativeEnd();
+  stopFinn();unlockFinn();
+  try{const p=await NativeSpeech.requestPermissions();if(p.speechRecognition!=='granted'){$('kMicNote').textContent='Allow the microphone and speech recognition for SignSense in Settings, or type a word below.';return}}
+  catch(e){$('kMicNote').textContent='Voice didn\u2019t start. Type a word below instead.';return}
+  let heard='',timer=0;
+  const sub=await NativeSpeech.addListener('partialResults',d=>{heard=(d.matches||[])[0]||heard;if(heard)$('kMicNote').textContent='Heard: “'+heard+'”'});
+  kNativeEnd=async()=>{
+    kNativeEnd=null;clearTimeout(timer);try{await NativeSpeech.stop()}catch(e){}
+    sub?.remove?.();kListening(false);
+    if(heard)teachWord(heard);else $('kMicNote').textContent='I didn\u2019t hear anything. Tap the button and try again.';
+  };
+  kListening(true);
+  try{await NativeSpeech.start({language:'en-US',maxResults:1,partialResults:true,popup:false});timer=setTimeout(()=>kNativeEnd?.(),6000)}
+  catch(e){kNativeEnd=null;sub?.remove?.();kListening(false);$('kMicNote').textContent='Voice didn\u2019t start. Type a word below instead.'}
+}
+if(!SpeechRec&&!NativeSpeech){$('kMic').disabled=true;$('kMicLabel').textContent='Voice not available here';$('kMicNote').textContent='This browser can’t listen for words. Type a word below instead, or open SignSense in Chrome or Safari.'}
 $('kMic').onclick=()=>{
+  if(NativeSpeech)return kNativeListen();
   if(!SpeechRec)return;
   if(kRec){kRec.stop();return}
   stopFinn();unlockFinn();
@@ -2118,7 +2159,7 @@ kPlayer.rest();
 function kLeave(){if(K.steps.length&&K.steps[K.i]?.kind!=='turn')kStopLesson();else{K.token++;clearTimeout(K.timer);stopFinn()}}
 window.kLeave=kLeave;
 /* ---------- accounts ---------- */
-const safeStore={getItem:k=>{try{return localStorage.getItem(k)}catch(e){return null}},setItem:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const safeStore={getItem:k=>{try{return localStorage.getItem(k)}catch(e){return null}},setItem:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},removeItem:k=>{try{localStorage.removeItem(k)}catch(e){}}};
 const accounts=createAccounts(safeStore);
 let currentUser=null,authMode='login';
 // Switch to a profile (null = guest): load that person's saved progress.
@@ -2129,6 +2170,7 @@ function useProfile(name){
   safeStore.setItem('signsense-session',name?userId(name):'guest');
   $('userName').textContent=name||'Guest';$('authBtn').textContent=name?'Log out':'Log in';
   $('authView').classList.add('hidden');
+  show('deleteBox',!!name);show('deleteConfirm',false);$('deleteError').textContent='';
   persist();typer.clear();shownText=null;refreshOut();drawRest();drawLogos();
   run=null;xPlayer.stop();setXView('list');
   choose(nextLessonIndex());setTab(lastTab.translate);
@@ -2158,6 +2200,19 @@ $('authForm').onsubmit=async e=>{
   finally{$('authSubmit').disabled=false}
 };
 $('guestBtn').onclick=()=>useProfile(null);
+$('deleteBtn').onclick=()=>{show('deleteConfirm',true);$('deleteBtn').classList.add('hidden');$('deletePass').focus()};
+$('deleteGo').onclick=async()=>{
+  if(!currentUser)return;
+  $('deleteGo').disabled=true;
+  try{
+    const r=await accounts.remove(currentUser,$('deletePass').value);
+    if(r.error){$('deleteError').textContent=r.error;return}
+    safeStore.removeItem(KEY);safeStore.setItem('signsense-session','guest');
+    $('deletePass').value='';$('deleteBtn').classList.remove('hidden');
+    useProfile(null);toast(`The profile ${r.removed} was deleted`);
+  }catch(x){$('deleteError').textContent='Something went wrong. Please try again.'}
+  finally{$('deleteGo').disabled=false}
+};
 $('authBtn').onclick=()=>{if(currentUser){if(running)stop();currentUser=null;safeStore.setItem('signsense-session','')}showAuth('login')};
 
 drawLogos();
@@ -2166,7 +2221,8 @@ drawLogos();
 // The service worker saves the app for offline use (it needs https or localhost).
 if('serviceWorker' in navigator&&(location.protocol==='https:'||['localhost','127.0.0.1'].includes(location.hostname)))
   addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
-const installed=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+// The iPhone app (Capacitor) is already installed, so it never shows install help.
+const installed=()=>!!window.Capacitor?.isNativePlatform?.()||matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 let installPrompt=null;
 // Chrome, Edge and Android offer an install prompt; we keep it for our own button.
